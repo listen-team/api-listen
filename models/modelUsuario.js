@@ -10,7 +10,7 @@ class Usuario{
 		this.correo = correo;
 		this.contrasena = contrasena;
 		this.tipoUsuario = tipoUsuario;
-		this.firma = firma;
+		this.firma = firma;git 
 	}
 
 	nombreCompleto(){
