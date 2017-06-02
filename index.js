@@ -15,6 +15,9 @@ app.use(bodyParser.urlencoded({extended : false}));
 app.use(bodyParser.json());
 
 app.get('/categoria', (req, res) => {
+	const db = firebase.database();
+	let categoria = db.ref('categoria');
+
 	res.send(200, {categorias : []});
 });
 
@@ -45,7 +48,10 @@ app.put('/categoria/:id', (req, res) => {
 
 // eliminar categoria
 app.delete('/categoria/:id', (req, res) => {
-
+	const db = firebase.database();
+	console.log(req.body.id + '');
+	let categoria = db.ref('/categoria/'+2).remove();
+	res.status(200).send({message : 'La categoria ha sido eliminada'});
 });
 
 
