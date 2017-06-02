@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 firebase.initializeApp({
-	serviceAccount : './database/Listen-1407cf5d699d.json',
+	serviceAccount : 'Listen-a11cf4bc17e5.json',
 	databaseURL : 'https://listendb-ba317.firebaseio.com'
 });
 
@@ -30,7 +30,7 @@ app.post('/categoria', (req, res) => {
 		const db = firebase.database();
 		let categoria = db.ref('categoria');
 
-		categoria.child('4').set({
+		categoria.child('6').set({
 	 	tipo: tipo
 	});
 
