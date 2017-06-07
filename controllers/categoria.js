@@ -43,26 +43,37 @@ function obtenerCategoria (req, res) {
 * Retornas todas las categorias existentes
 */
 function listarCategorias (req, res) {
-	refCategoria.once('value').then((snap) => {
-		
-		let data = snap.val();
-		res.status(200).send(data);
+	let promise = new Promise((resolve, reject) => {
+		refCategoria.on('value', (snap) =>{
+			let data = snap.val();
+			if (data != null) {
+				resolve(data);
+			}else{
+				reject({msg : 'No hay categorias'});
+			}
+		});
 	});
+
+	promise.then((response) => {
+		res.status(200).send(response);
+	}, (error) => {
+		res.status(404).send(error);
+	});	
 }
 
 /*
 * Crea una nueva categoria
 */
 function crearCategoria (req, res) {
-	let nuevaCategoria = refCategoria.push();
-	nuevaCategoria.set({
+	let nuevaCategoria = refCategoria.child(''+req.body.numero);
+	let obj = {
 		numero : req.body.numero,
 		tipo : req.body.tipo
-	});
+	};
+
+	nuevaCategoria.set(obj);
 	
 	res.status(200).send({msg : 'Se registro el producto'});	
-	//refCategoria.push(nuevaCategoria);
-
 }
 
 
