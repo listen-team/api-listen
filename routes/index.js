@@ -2,16 +2,21 @@
 
 const express = require('express');
 const api = express.Router();
-const categoriaController = require('.././controllers/categoria');
+const ctrlCategoria = require('.././controllers/categoria');
+const ctrlUsuario = require('.././controllers/usuarios');
 
 /*
 * Modulo de categoria
 */
-api.get('/categoria', categoriaController.listarCategorias);
-api.get('/categoria/:id', categoriaController.obtenerCategoria);
-api.post('/categoria', categoriaController.crearCategoria);
-api.put('/categoria/:id', categoriaController.actualizarCategoria);
-api.delete('/categoria/:id', categoriaController.eliminarCategoria);
+api.get('/categoria', ctrlCategoria.listarCategorias);
+api.get('/categoria/:id', ctrlCategoria.obtenerCategoria);
+api.post('/categoria', ctrlCategoria.crearCategoria);
+api.put('/categoria/:id', ctrlCategoria.actualizarCategoria);
+api.delete('/categoria/:id', ctrlCategoria.eliminarCategoria);
 
+/*
+* Modulo de usuario
+*/
+api.post('/usuario', ctrlUsuario.crearUsuario);
 
 module.exports = api;

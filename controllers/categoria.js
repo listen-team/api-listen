@@ -43,22 +43,35 @@ function obtenerCategoria (req, res) {
 * Retornas todas las categorias existentes
 */
 function listarCategorias (req, res) {
-	let promise = new Promise((resolve, reject) => {
-		refCategoria.on('value', (snap) =>{
-			let data = snap.val();
-			if (data != null) {
-				resolve(data);
-			}else{
-				reject({msg : 'No hay categorias'});
-			}
+	let data;
+	refCategoria.on('value', (snap) => {
+		data = snap.val();
+		console.log(snap.val());
+	});
+		res.status(200).send(data);
+
+
+/*	let promise = new Promise((resolve, reject) => {
+		let data;
+
+		refCategoria.on('value', (snap) => {
+			data = snap.val();
 		});
+
+		refCategoria.on('child_changed', (snap) => {
+			data = snap.val();
+		});
+	
+		resolve(data);
 	});
 
 	promise.then((response) => {
+		console.log(response);
 		res.status(200).send(response);
 	}, (error) => {
+		console.log(error);
 		res.status(404).send(error);
-	});	
+	});	*/
 }
 
 /*
@@ -81,32 +94,19 @@ function crearCategoria (req, res) {
 * Actualizar una categoria por su id
 */
 function actualizarCategoria(req, res){
-	let numero = req.params.id;
-	let tipo = req.body.tipo;
+	let refObjeto = refCategoria.child(''+req.params.id);
+	let obj = {
+		numero : req.body.numero,
+		tipo : req.body.tipo
+	};
 
-	refCategoria.once('value', (snap) => {
-		let lista = snap.val();
-		let objCategoria;
-		let item;
+	refObjeto.update(obj);
 
-		for(let key in lista){
-			if (lista[key].numero == numero) {
-				 item = key;
-				 objCategoria = snap.child(key).val();
-				 break;
-			}
-		}
-		
-		if (objCategoria != null) {
-			let actCategoria = refCategoria.child(item).update({
-				numero : numero,
-				tipo : tipo
-			});
-			res.status(200).send({msg : 'Categoria actualizada'});
-		}else{
-			res.status(404).send({msg : "No existe la categoria"});
-		}
-	});
+	if (refObjeto != null) {
+		res.status(200).send({msg : 'Categoria actualizada'});
+	}else{
+		res.status(404).send({msg : "No existe la categoria"});
+	}
 }
 
 /*
@@ -117,34 +117,23 @@ function eliminarCategoria (req, res) {
 	
 	let promise = new Promise((resolve, reject) => {
 		refCategoria.on('value', (snap) => {
-			let lista = snap.val();
-			let objCategoria;
-			let item;
-
-			for(let key in lista){
-				if (lista[key].numero == id) {
-					 item = key;
-					 console.log(item);
-					 objCategoria = snap.child(key).val();
-					 break;
-				}
-			}
 			
-			if (objCategoria != null) {
-				refCategoria.child(item).remove();
-				resolve({msg : 'La categoria ha sido eliminada'});
-			}else{
-				reject({msg : 'No existe la categoria'});
-			}
+			let objCategoria = refCategoria.child(id);
+
+			objCategoria.remove()
+				.then(() =>{
+					resolve({msg : 'La categoria ha sido eliminada'});
+				})
+				.catch((error) => {
+					reject({msg : 'No existe la categoria'});
+				});
 		});	
 	});
 
 
 	promise.then((response) => {
-		console.log(response);
 		res.status(200).send(response);
 	}, (error) => {
-		console.log(error);
 		res.status(404).send(error);
 	});	
 }
@@ -155,4 +144,4 @@ module.exports = {
 	crearCategoria,
 	actualizarCategoria,
 	eliminarCategoria
-}
+};
