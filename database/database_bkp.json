@@ -1,0 +1,89 @@
+{
+    "categoria" : {
+        "token" : {
+            "id" : "",
+            "tipo" : ""
+        }
+    },
+    "tipoUsuario" : {
+        "token" : {
+            "numero" : "",
+            "descripcion" : ""
+        }
+    },
+    "usuario" : {
+        "token" : {
+            "dni" : "",
+            "nombre" : "",
+            "apellido" : "",
+            "fechaNacimiento" : "",
+            "genero" : "",
+            "correo" : "",
+            "contraseña" : "",   
+            "tipoUsuario" : "nroTipoUsuario",
+            "firma" : ""
+        }
+    },
+    "idea" : {
+        "token" : {
+            "numero": "",            
+            "fechaElaboracion" : "",
+            "fechaActualizacion" : "",
+            "descripcion" : "",
+            "motivos" : "",
+            "efectos" : "",
+            "beneficios" : "",
+            "formulaLegal" : "",
+            "disposicionesFinales" : "",
+            "titular" : "dni",
+            "categoria" : "nroCategoria"
+        }
+    },
+    "configuracion" : {
+        "token" : {
+            "nroIdea": "",
+            "visible" : true,
+            "estadoRedaccion" : "nroEstado",
+            "estadoEvaluacionOnpe" : "nroEstado",
+            "estadoEvaluacionLegislativa" : ""
+        }
+    },
+    "contribuidores" : {
+        "nroIdea" : {
+            "1" : {
+                "dni" : "",
+                "permisoEscritura" : false
+            }
+        }
+    },
+    "solicitudDeContribucion" : {
+        "nroIdea" : {
+            "1" : {
+                "dni" : "",
+                "aceptar" : false
+            }
+        }
+    },
+    "estado" : {
+        "nroIdea" : {
+            "redaccion" : "",
+            "evaluacionOnpe" : "",
+            "evaluacionLegislativa" : ""
+        }
+    },
+    "firmasIdeas" : {
+        "nroIdea" : {
+            "1" : {
+                "dni" : ""
+            }
+        }
+    },
+    "ideasasignadas" : {
+        "nroUsuario" : {
+            "nroIdea" : "",
+            "fechaRecpcion" : "",
+            "estadoRevision" : "nroEstado",
+            "fechaTermino" : ""
+        }
+    }
+}
