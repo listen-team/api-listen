@@ -2,8 +2,15 @@
 
 const express = require('express');
 const api = express.Router();
+const firebase = require('firebase');
+const config = require('.././config');
+const dbConfiguration = require('.././database/configDatabase');
+
+firebase.initializeApp(dbConfiguration);
+
+
 const ctrlCategoria = require('.././controllers/categoria');
-const ctrlUsuario = require('.././controllers/usuarios');
+const ctrlUsuario = require('.././controllers/usuarios.js');
 
 /*
 * Modulo de categoria
@@ -17,6 +24,9 @@ api.delete('/categoria/:id', ctrlCategoria.eliminarCategoria);
 /*
 * Modulo de usuario
 */
-api.post('/usuario', ctrlUsuario.crearUsuario);
+api.post('/user', ctrlUsuario.createUser);
+api.post('/login', ctrlUsuario.loginWithFirebase);
+api.post('/logout', ctrlUsuario.logoutWithFirebase);
+api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
 
 module.exports = api;

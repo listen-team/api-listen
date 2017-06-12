@@ -2,14 +2,6 @@
 
 const firebase = require('firebase');
 const config = require('.././config');
-
-// conecta a la base de datos de firebase
-firebase.initializeApp({
-	serviceAccount : '.././database/Listen-a11cf4bc17e5.json',
-	databaseURL : config.url
-});
-
-// 
 const db = firebase.database();
 const refCategoria = db.ref().child('categoria');
 
@@ -48,30 +40,7 @@ function listarCategorias (req, res) {
 		data = snap.val();
 		console.log(snap.val());
 	});
-		res.status(200).send(data);
-
-
-/*	let promise = new Promise((resolve, reject) => {
-		let data;
-
-		refCategoria.on('value', (snap) => {
-			data = snap.val();
-		});
-
-		refCategoria.on('child_changed', (snap) => {
-			data = snap.val();
-		});
-	
-		resolve(data);
-	});
-
-	promise.then((response) => {
-		console.log(response);
-		res.status(200).send(response);
-	}, (error) => {
-		console.log(error);
-		res.status(404).send(error);
-	});	*/
+	res.status(200).send(data);
 }
 
 /*
