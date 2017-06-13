@@ -3,6 +3,7 @@
 const firebase = require('firebase');
 const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
+const service = require('.././services');
 
 
 /*
@@ -18,25 +19,25 @@ function createUser(req, res){
 	let tipoUsuario = req.body.tipoUsuario;
 	let fecNac = req.body.fecNac;
 
-	if (dni != null) {
-		let refObjeto = refUsuario.child(''+dni);
-		let obj = {
-			dni : dni,
-			correo : email,
-			contrasena : password,
-			apellido : apellido,
-			nombre: nombre,
-			genero: genero,
-			tipoUsuario : tipoUsuario,
-			fecNac : fecNac
-		};
-
-		refObjeto.set(obj);
-	}
+	let user = {
+		dni : dni,
+		correo : email,
+		contrasena : password,
+		apellido : apellido,
+		nombre: nombre,
+		genero: genero,
+		tipoUsuario : tipoUsuario,
+		fecNac : fecNac
+	};
 
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().createUserWithEmailAndPassword(email, password)
 		.then((result) => {
+			if (dni != null) {
+				let refObjeto = refUsuario.child(''+dni);
+				refObjeto.set(user);
+			}
+			console.log('prueba > '  + user.correo);
 			resolve({
 				msg : `Se registro el usuario ${email}`
 			});
@@ -44,9 +45,10 @@ function createUser(req, res){
 		.catch((error) => {
 			if (error) {
 				reject({
-					'email': email,
-					'errorCode' : error.code,
-					'errorMessage' : error.message
+					dni : dni,
+					email: email,
+					errorCode : error.code,
+					errorMessage : error.message
 				});
 			}
 		});
@@ -69,8 +71,10 @@ function loginWithFirebase (req, res) {
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().signInWithEmailAndPassword(email, password)
 		.then((result) => {
+			// 	service.createToken(req.dni);
 			resolve({
-				msg : `Ha iniciado sesion el usuario ${email}`
+				msg : `Ha iniciado sesion el usuario ${email}`,
+				token : service.createToken(req.email)
 			});
 		})
 		.catch((error) => {
