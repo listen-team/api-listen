@@ -33,6 +33,11 @@ function createUser(req, res){
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().createUserWithEmailAndPassword(email, password)
 		.then((result) => {
+			///////
+			firebase.auth().onAuthStateChanged(function(user) {
+			  user.sendEmailVerification();
+			});
+			///////
 			if (dni != null) {
 				let refObjeto = refUsuario.child(''+dni);
 				refObjeto.set(user);
@@ -94,7 +99,7 @@ function loginWithFirebase (req, res) {
 		res.status(200).send(response);	
 	}, (error) => {
 		res.status(500).send(error);
-	});	
+	});
 }
 
 
@@ -155,9 +160,42 @@ function sendPasswordResetEmail (req, res) {
 	});	
 }
 
+function iniciarSesion (req, res) {
+	let user = {
+		correo : req.body.email,
+		contrasena : req.body.password
+	};
+
+	let promise = new Promise((resolve, reject) => {
+		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
+		.then((result) => {
+			resolve({
+				msg : `Ha iniciado sesion el usuario ${user.correo}`,
+				token : service.createToken(user.correo)
+			});
+		})
+		.catch((error) => {
+		  	if (error) {
+				reject({
+					'email': user.correo,
+					'errorCode' : error.code,
+					'errorMessage' : error.message
+				});
+			}
+		});
+	});
+
+	promise.then((response) => {
+		res.status(200).send(response);	
+	}, (error) => {
+		res.status(500).send(error);
+	});
+}
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
 	logoutWithFirebase,
-	sendPasswordResetEmail
+	sendPasswordResetEmail,
+	iniciarSesion
 }
