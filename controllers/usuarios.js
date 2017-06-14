@@ -82,7 +82,7 @@ function loginWithFirebase (req, res) {
 		.catch((error) => {
 		  	if (error) {
 				reject({
-					'email': email,
+					'email': user.correo,
 					'errorCode' : error.code,
 					'errorMessage' : error.message
 				});

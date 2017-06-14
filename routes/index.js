@@ -11,6 +11,7 @@ firebase.initializeApp(dbConfiguration);
 
 const ctrlCategoria = require('.././controllers/categoria');
 const ctrlUsuario = require('.././controllers/usuarios.js');
+const ctrlIdea = require('.././controllers/ideas');
 const auth = require('.././middlewares/auth');
 
 /*
@@ -35,5 +36,11 @@ api.get('/private',  auth ,(req, res) => {
 	});
 });
 
+
+/*
+* Modulo de idea
+*/
+api.get('/idea', ctrlIdea.listarIdeas);
+api.post('/idea', ctrlIdea.crearIdea);
 
 module.exports = api;
