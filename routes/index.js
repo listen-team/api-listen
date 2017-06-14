@@ -29,11 +29,11 @@ api.post('/user', ctrlUsuario.createUser);
 api.post('/login', ctrlUsuario.loginWithFirebase);
 api.post('/logout', ctrlUsuario.logoutWithFirebase);
 api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
-/*api.get('/private',  auth.isAuth ,(req, res) => {
+api.get('/private',  auth ,(req, res) => {
 	res.status(200).send({
 		msg : 'Tienes acceso'
 	});
-});*/
+});
 
 
 module.exports = api;

@@ -37,8 +37,9 @@ function createUser(req, res){
 				let refObjeto = refUsuario.child(''+dni);
 				refObjeto.set(user);
 			}
-			console.log('prueba > '  + user.correo);
 			resolve({
+				correo : user.correo,
+				token : service.createToken(user),
 				msg : `Se registro el usuario ${email}`
 			});
 		})
@@ -65,16 +66,17 @@ function createUser(req, res){
 * Metodo para iniciar sesión con firebase
 */
 function loginWithFirebase (req, res) {
-	let email = req.body.email;
-	let password = req.body.password;
+	let user = {
+		correo : req.body.email,
+		contrasena : req.body.password
+	};
 
 	let promise = new Promise((resolve, reject) => {
-		firebase.auth().signInWithEmailAndPassword(email, password)
+		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
 		.then((result) => {
-			// 	service.createToken(req.dni);
 			resolve({
-				msg : `Ha iniciado sesion el usuario ${email}`,
-				token : service.createToken(req.email)
+				msg : `Ha iniciado sesion el usuario ${user.correo}`,
+				token : service.createToken(user.correo)
 			});
 		})
 		.catch((error) => {
