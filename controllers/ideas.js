@@ -4,45 +4,56 @@ const firebase = require('firebase');
 const config = require('.././config');
 const db = firebase.database();
 const refIdea = db.ref().child('idea');
+const idea = require('.././models/modelIdea');
+const objResponse = require('.././models/modelResponse');
 
 
-/*
-* Metodo para listar ideas
-*/
+/**
+ * Metodo para listar ideas
+ * @param {http | https} req 
+ * @param {http | https} res 
+ */
 function listarIdeas (req, res) {
-	let data;
-	refIdea.on('value', (snap) => {
-		data = snap.val();
-		console.log(snap.val());
-	});
-	res.status(200).send(data);
+	let data = idea.listaDeIdeas();
+	res.status(200).send(objResponse.modelResponse(
+			true, 
+			`Se listaron las ideas`, 
+			data.length, 
+			data)
+	);
 }
 
-/*
-* Metodo para crear ideas
-*/
+/**
+ * Metodo para crear una idea
+ * @param {http | https} req 
+ * @param {http | https} res 
+ */
 function crearIdea (req, res) {
-	let nuevaIdea = refIdea.child(''+req.body.numero);
+	let nuevaIdea = refIdea.push();
+	let key = nuevaIdea.toString().split('/idea/')[1];
+	let num = req.body.numero;
+	let ben = req. body.beneficios;
+	let des = req.body.descripcion;
+	let dis = req.body.disposicionesFinales;
+	let efe = req.body.efectos;
+	let fac = req.body.fechaActualizacion;
+	let fel = req.body.fechaElaboracion;
+	let form = req.body.formulaLegal;
+	let mot = req.body.motivos;
+	let tit = req.body.titular;
+	let cat = req.body.categoria;
 
+	nuevaIdea.set(idea.modelIdea(num, ben, des, dis, efe, fac, fel, form, mot, tit, cat));
 	
-	let objIdea = {
-		numero : req.body.numero,
-		beneficios:  req. body.beneficios,
-		descripcion : req.body.descripcion,
-		disposicionesFinales : req.body.disposicionesFinales,
-		efectos : req.body.efectos,
-		fechaActualizacion : req.body.fechaActualizacion,
-		fechaElaboracion : req.body.fechaElaboracion,
-		formulaLegal : req.body.formulaLegal,
-		motivos : req.body.motivos,
-		titular : req.body.titular,
-		categoria : req.body.categoria
-	};
-
-	nuevaIdea.set(objIdea);
-	
-	res.status(200).send({msg : 'Se registro la idea'});	
+	res.status(200).send(
+		objResponse.modelResponse(
+			true, 
+			`Se registro la idea ${key}`, 
+			1, 
+			idea.modelIdea(num, ben, des, dis, efe, fac, fel, form, mot, tit, cat))
+	);	
 }
+
 
 module.exports = {
 	listarIdeas,
