@@ -22,7 +22,7 @@ function listarIdeas (req, res) {
 * Metodo para crear ideas
 */
 function crearIdea (req, res) {
-	let nuevaIdea = refIdea.child(''+req.body. numero);
+	let nuevaIdea = refIdea.child(''+req.body.numero);
 
 	
 	let objIdea = {
