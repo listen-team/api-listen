@@ -10,8 +10,8 @@ const objResponse = require('.././models/modelResponse');
 
 /**
  * Metodo para listar ideas
- * @param {http | https} req 
- * @param {http | https} res 
+ * @param {http | https} req - Peticion
+ * @param {http | https} res  - Respuesta
  */
 function listarIdeas (req, res) {
 	let data = idea.listaDeIdeas();
@@ -25,8 +25,8 @@ function listarIdeas (req, res) {
 
 /**
  * Metodo para crear una idea
- * @param {http | https} req 
- * @param {http | https} res 
+ * @param {http | https} req - Peticion
+ * @param {http | https} res  - Respuesta
  */
 function crearIdea (req, res) {
 	let nuevaIdea = refIdea.push();
