@@ -5,40 +5,37 @@ const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
 const objResponse = require('.././models/modelResponse');
-
-
-
 /**
  * Metodo para crear usuario de firebase
  * @param {http | https} req - Peticion
  * @param {http | https} res  - Respuesta
  */
 function createUser(req, res){
+	console.log ('holaaa')
 	let nuevoUsuario = refUsuario.push();
 	let key  = nuevoUsuario.toString().split('/usuario/')[1];
-
-	let dni = req.body.dni;
-	let email = req.body.email;
-	let password = req.body.password;
-	let apellido = req.body.apellido;
+//Pina Records - YefriLactala
 	let nombre = req.body.nombre;
-	let genero = req.body.genero;
-	let tipoUsuario = req.body.tipoUsuario;
-	let fecNac = req.body.fecNac;
+	let apellido  = req.body.apellido;
+	let correo = req.body.correo;
+	let contrasena = req.body.contrasena;
+	let fecha_nacimiento = req.body.fecha_nacimiento;
+	let condicion = req.body.condicion;
+	let verificacion = Math.round((Math.random()*(999999 - 100000) + 100000));
 
+ 
 	let user = {
-		dni : dni,
-		correo : email,
-		contrasena : password,
+		nombre : nombre,
 		apellido : apellido,
-		nombre: nombre,
-		genero: genero,
-		tipoUsuario : tipoUsuario,
-		fecNac : fecNac
+		correo : correo,
+		contrasena : contrasena,
+		fecha_nacimiento: fecha_nacimiento,
+		condicion : condicion,
+		verificacion : verificacion
 	};
-
+// fin de Pina Records
 	let promise = new Promise((resolve, reject) => {
-		firebase.auth().createUserWithEmailAndPassword(email, password)
+		firebase.auth().createUserWithEmailAndPassword(correo, contrasena)
 		.then((result) => {
 			///////
 			/*firebase.auth().onAuthStateChanged(function(user) {
