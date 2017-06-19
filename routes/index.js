@@ -31,9 +31,11 @@ api.post('/login', ctrlUsuario.loginWithFirebase);
 api.post('/logout', ctrlUsuario.logoutWithFirebase);
 api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
 api.get('/private',  auth ,(req, res) => {
+	//res.writeHead(301, {Location : 'https://www.youtube.com/'});
 	res.status(200).send({
 		msg : 'Tienes acceso'
 	});
+	res.end();
 });
 
 

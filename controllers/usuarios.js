@@ -4,12 +4,19 @@ const firebase = require('firebase');
 const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
+const objResponse = require('.././models/modelResponse');
 
 
-/*
-* Metodo para crear usuario de firebase
-*/
+
+/**
+ * Metodo para crear usuario de firebase
+ * @param {http | https} req - Peticion
+ * @param {http | https} res  - Respuesta
+ */
 function createUser(req, res){
+	let nuevoUsuario = refUsuario.push();
+	let key  = nuevoUsuario.toString().split('/usuario/')[1];
+
 	let dni = req.body.dni;
 	let email = req.body.email;
 	let password = req.body.password;
@@ -34,28 +41,34 @@ function createUser(req, res){
 		firebase.auth().createUserWithEmailAndPassword(email, password)
 		.then((result) => {
 			///////
-			firebase.auth().onAuthStateChanged(function(user) {
+			/*firebase.auth().onAuthStateChanged(function(user) {
 			  user.sendEmailVerification();
-			});
+			});*/
+			service.sendMail(user);
 			///////
-			if (dni != null) {
-				let refObjeto = refUsuario.child(''+dni);
-				refObjeto.set(user);
-			}
-			resolve({
-				correo : user.correo,
-				token : service.createToken(user),
-				msg : `Se registro el usuario ${email}`
-			});
+			nuevoUsuario.set(user);
+
+			resolve(objResponse.modelResponse(
+				service.createToken(user),
+				null,
+				null,
+				true,
+				`Se registro el usuario ${key}`,
+				1,
+				user
+			));
 		})
 		.catch((error) => {
 			if (error) {
-				reject({
-					dni : dni,
-					email: email,
-					errorCode : error.code,
-					errorMessage : error.message
-				});
+				reject(objResponse.modelResponse(
+					null,
+					error.code,
+					error.message,
+					false,
+					`Error al crear el usuario ${user.apellido} ${user.nombre}`,
+					0,
+					user
+				));
 			}
 		});
 	});
@@ -67,9 +80,11 @@ function createUser(req, res){
 	});	
 }
 
-/*
-* Metodo para iniciar sesión con firebase
-*/
+/**
+ * Metodo para iniciar sesión con firebase
+ * @param {http | https} req - Peticion
+ * @param {http | https} res  - Respuesta
+ */
 function loginWithFirebase (req, res) {
 	let user = {
 		correo : req.body.email,
@@ -79,18 +94,27 @@ function loginWithFirebase (req, res) {
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
 		.then((result) => {
-			resolve({
-				msg : `Ha iniciado sesion el usuario ${user.correo}`,
-				token : service.createToken(user.correo)
-			});
+			resolve(objResponse.modelResponse(
+				service.createToken(user.correo),
+				null,
+				null,
+				true,
+				`Ha iniciado sesión el usuario ${user.correo}`,
+				1,
+				user.correo
+			));
 		})
 		.catch((error) => {
 		  	if (error) {
-				reject({
-					'email': user.correo,
-					'errorCode' : error.code,
-					'errorMessage' : error.message
-				});
+				reject(objResponse.modelResponse(
+					null,
+					error.code,
+					error.message,
+					false,
+					`Error al iniciar sesión con el usuario ${user.correo}`,
+					0,
+					user.correo
+				));
 			}
 		});
 	});
@@ -103,15 +127,21 @@ function loginWithFirebase (req, res) {
 }
 
 
-/*
-* Metodo para cerrar sesión en firebase
-**/
+/**
+ * Metodo para cerrar sesión con una cuenta de Listen
+ * @param {http | https} req - Peticion
+ * @param {http | https} res  - Respuesta
+ */
 function logoutWithFirebase (req, res) {
 	let email = req.body.email;
 
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().signOut()
 		.then((result) => {
+			resolve(objResponse.modelResponse(
+
+			));
+
 			resolve({
 				'msg' : 'Ha cerrado sesión'
 			});

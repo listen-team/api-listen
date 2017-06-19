@@ -16,6 +16,9 @@ const objResponse = require('.././models/modelResponse');
 function listarIdeas (req, res) {
 	let data = idea.listaDeIdeas();
 	res.status(200).send(objResponse.modelResponse(
+			null,
+			null,
+			null,
 			true, 
 			`Se listaron las ideas`, 
 			data.length, 
@@ -47,6 +50,9 @@ function crearIdea (req, res) {
 	
 	res.status(200).send(
 		objResponse.modelResponse(
+			null,
+			null,
+			null, 
 			true, 
 			`Se registro la idea ${key}`, 
 			1, 
