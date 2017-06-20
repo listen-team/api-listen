@@ -78,6 +78,48 @@ function createUser(req, res){
 	});	
 }
 
+//INICIO
+function loginWithGoogle(require,response){
+	//declaro mis variables
+	let user = {
+		correo : require.body.email,
+		contrasena : require.body.contrasena
+	};
+	let promise = new Promise((resolve,reject)=>{
+	//esto es para saber en que estado el usuario
+	if(!firebase.auth().curentUser){
+	//creamos un nuevo objeto que almacenara la inf. del proveedor
+	let provider = new firebase.auth.GoogleAuthProvider(user.correo,user.contrasena);
+	//le digo a google que usare su api de autentificacion
+	firebase.auth().signInWithPopup(provider).then((result)=>{
+	//obtengo los valores que a mi me interesan:	
+	resolve(objResponse.modelResponse(service.createToken(user.correo),null,null,true,`Ha iniciado sesión en GOOGLE el usuario ${user.correo}`,1,user.correo));
+	}).catch((error)=>{
+		if(error){
+			reject(objResponse.modelResponse(null,error.errorCode,error.message,false,`Error al iniciar sesión en GOOGLE con el usuario ${user.correo}`,1,user.correo));
+		}
+         //error de credenciales
+         let credential = error.credential;
+		 //verificamos si el error fue de credenciales 
+		if(errorCode === 'auth/account-exists-with-different-credential'){
+			console.log("Es el mismo USUARIO  ===> " + errorCode);
+		}
+	});
+	
+}else{
+		 firebase.auth().signOut();
+	 }	
+	});	
+	promise.then((response) => {
+		res.status(200).send(response);	
+	}, (error) => {
+		res.status(500).send(error);
+	});	
+}
+
+//FIN de google
+
+
 /**
  * Metodo para iniciar sesión con firebase
  * @param {http | https} req - Peticion
@@ -123,7 +165,6 @@ function loginWithFirebase (req, res) {
 		res.status(500).send(error);
 	});
 }
-
 
 /**
  * Metodo para cerrar sesión con una cuenta de Listen
@@ -233,7 +274,6 @@ function verificacionEmail(req,res){
 	});	
 }
 
-
 function iniciarSesion (req, res) {
 	let user = {
 		correo : req.body.email,
@@ -272,5 +312,6 @@ module.exports = {
 	logoutWithFirebase,
 	sendPasswordResetEmail,
 	iniciarSesion,
-	verificacionEmail
+	verificacionEmail,
+	loginWithGoogle
 }
