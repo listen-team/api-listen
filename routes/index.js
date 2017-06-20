@@ -30,6 +30,7 @@ api.post('/user', ctrlUsuario.createUser);
 api.post('/login', ctrlUsuario.loginWithFirebase);
 api.post('/logout', ctrlUsuario.logoutWithFirebase);
 api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
+api.post('/verificarEmail', ctrlUsuario.verificacionEmail);
 api.get('/private',  auth ,(req, res) => {
 	//res.writeHead(301, {Location : 'https://www.youtube.com/'});
 	res.status(200).send({

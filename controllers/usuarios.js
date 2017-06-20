@@ -5,13 +5,13 @@ const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
 const objResponse = require('.././models/modelResponse');
+
 /**
  * Metodo para crear usuario de firebase
  * @param {http | https} req - Peticion
  * @param {http | https} res  - Respuesta
  */
 function createUser(req, res){
-	console.log ('holaaa')
 	let nuevoUsuario = refUsuario.push();
 	let key  = nuevoUsuario.toString().split('/usuario/')[1];
 //Pina Records - YefriLactala
@@ -21,7 +21,7 @@ function createUser(req, res){
 	let contrasena = req.body.contrasena;
 	let fecha_nacimiento = req.body.fecha_nacimiento;
 	let condicion = req.body.condicion;
-	let verificacion = Math.round((Math.random()*(999999 - 100000) + 100000));
+	let codigoVerificacion = Math.round((Math.random()*(999999 - 100000) + 100000));
 
  
 	let user = {
@@ -31,7 +31,8 @@ function createUser(req, res){
 		contrasena : contrasena,
 		fecha_nacimiento: fecha_nacimiento,
 		condicion : condicion,
-		verificacion : verificacion
+		codigoVerificacion : codigoVerificacion,
+		estadoVerifiacion : false
 	};
 // fin de Pina Records
 	let promise = new Promise((resolve, reject) => {
@@ -187,6 +188,52 @@ function sendPasswordResetEmail (req, res) {
 	});	
 }
 
+function verificacionEmail(req,res){
+	
+	const email = req.body.email;
+	const codigoVerificacion = req.body.codigoVerificacion;
+	
+	refUsuario.on('value',(snap)=>{
+		let listaCorreo = snap.val();
+		let objUsuario;
+		let key;
+
+
+		//declaro un for para recorrer los valores que traigo
+		for(let llave in listaCorreo){
+			console.log(llave);
+			if(listaCorreo[llave].correo == email){
+				key = llave;
+				objUsuario = listaCorreo[llave];
+				console.log(objUsuario);
+				break;
+			}
+		}
+		console.log(objUsuario);
+		if(objUsuario !== undefined){
+			if(objUsuario.codigoVerificacion == codigoVerificacion){
+				//actualizacion
+				let refUpdate = refUsuario.child(''+key);
+				let obj = {
+					estadoVerifiacion : true
+				};
+
+				refUpdate.update(obj);
+
+				res.status(200).send(objResponse.modelResponse(
+					null,null,null,true,"Verificacion Exitosa",1,objUsuario
+				));
+			}else{
+				res.status(404).send({msg : "el codigo de verificacion es incorrecto"});
+			}
+		}else{
+			res.status(404).send({msg : "No Existe el correo"});
+		}
+
+	});	
+}
+
+
 function iniciarSesion (req, res) {
 	let user = {
 		correo : req.body.email,
@@ -224,5 +271,6 @@ module.exports = {
 	loginWithFirebase,
 	logoutWithFirebase,
 	sendPasswordResetEmail,
-	iniciarSesion
+	iniciarSesion,
+	verificacionEmail
 }
