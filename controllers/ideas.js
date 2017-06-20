@@ -60,6 +60,18 @@ function crearIdea (req, res) {
 	);	
 }
 
+function ideasPorCategoria(req, res) {
+	let data = idea.listaDeIdeas();
+
+	
+
+
+}
+
+function ideasSeguidas(req, res){
+
+}
+
 
 module.exports = {
 	listarIdeas,

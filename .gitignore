@@ -1,5 +1,4 @@
 # Archivos ignorados por git
 npm-debug.log
 config.js
-services/
 node_modules/

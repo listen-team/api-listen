@@ -239,13 +239,13 @@ function iniciarSesion (req, res) {
 		correo : req.body.email,
 		contrasena : req.body.password
 	};
-
+	
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
 		.then((result) => {
 			resolve({
 				msg : `Ha iniciado sesion el usuario ${user.correo}`,
-				token : service.createToken(user.correo)
+				token : service.createToken(req.body.email)
 			});
 		})
 		.catch((error) => {
