@@ -47,7 +47,7 @@ function createUser(req, res){
 			nuevoUsuario.set(user);
 
 			resolve(objResponse.modelResponse(
-				service.createToken(user),
+				null,
 				null,
 				null,
 				true,
@@ -84,6 +84,7 @@ function createUser(req, res){
  * @param {http | https} res  - Respuesta
  */
 function loginWithFirebase (req, res) {
+	
 	let user = {
 		correo : req.body.email,
 		contrasena : req.body.password
@@ -93,25 +94,12 @@ function loginWithFirebase (req, res) {
 		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
 		.then((result) => {
 			resolve(objResponse.modelResponse(
-				service.createToken(user.correo),
-				null,
-				null,
-				true,
-				`Ha iniciado sesión el usuario ${user.correo}`,
-				1,
-				user.correo
+				service.createToken(user),null,null,true,`Ha iniciado sesión el usuario ${user.correo}`,1,user.correo
 			));
 		})
 		.catch((error) => {
 		  	if (error) {
-				reject(objResponse.modelResponse(
-					null,
-					error.code,
-					error.message,
-					false,
-					`Error al iniciar sesión con el usuario ${user.correo}`,
-					0,
-					user.correo
+				reject(objResponse.modelResponse(null,error.code,error.message,false,`Error al iniciar sesión con el usuario ${user.correo}`,0,user.correo
 				));
 			}
 		});
@@ -233,44 +221,10 @@ function verificacionEmail(req,res){
 	});	
 }
 
-
-function iniciarSesion (req, res) {
-	let user = {
-		correo : req.body.email,
-		contrasena : req.body.password
-	};
-	
-	let promise = new Promise((resolve, reject) => {
-		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
-		.then((result) => {
-			resolve({
-				msg : `Ha iniciado sesion el usuario ${user.correo}`,
-				token : service.createToken(req.body.email)
-			});
-		})
-		.catch((error) => {
-		  	if (error) {
-				reject({
-					'email': user.correo,
-					'errorCode' : error.code,
-					'errorMessage' : error.message
-				});
-			}
-		});
-	});
-
-	promise.then((response) => {
-		res.status(200).send(response);	
-	}, (error) => {
-		res.status(500).send(error);
-	});
-}
-
 module.exports = {
 	createUser,
 	loginWithFirebase,
 	logoutWithFirebase,
 	sendPasswordResetEmail,
-	iniciarSesion,
 	verificacionEmail
 }

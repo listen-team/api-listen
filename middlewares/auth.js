@@ -15,10 +15,11 @@ function isAuth (req, res, next) {
 	service.decodedToken(token)
 	.then(response => {
 		req.user = response;
+		req.token = token;
 		next();
 	})
 	.catch((response) => {
-		res.status(500).send({msg : 'Error carajo'});
+		res.status(500).send(response);
 	});
 }
 

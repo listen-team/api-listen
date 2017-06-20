@@ -4,8 +4,10 @@ const firebase = require('firebase');
 const config = require('.././config');
 const db = firebase.database();
 const refIdea = db.ref().child('idea');
+const refUser = db.ref().child('usuario');
 const idea = require('.././models/modelIdea');
-const objResponse = require('.././models/modelResponse');
+const modelIdea = require('.././models/modelResponse');
+const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
 
 
 /**
@@ -15,7 +17,7 @@ const objResponse = require('.././models/modelResponse');
  */
 function listarIdeas (req, res) {
 	let data = idea.listaDeIdeas();
-	res.status(200).send(objResponse.modelResponse(
+	res.status(200).send(modelIdea.modelResponse(
 			null,
 			null,
 			null,
@@ -49,7 +51,7 @@ function crearIdea (req, res) {
 	nuevaIdea.set(idea.modelIdea(num, ben, des, dis, efe, fac, fel, form, mot, tit, cat));
 	
 	res.status(200).send(
-		objResponse.modelResponse(
+		modelIdea.modelResponse(
 			null,
 			null,
 			null, 
@@ -60,12 +62,41 @@ function crearIdea (req, res) {
 	);	
 }
 
-function ideasPorCategoria(req, res) {
-	let data = idea.listaDeIdeas();
+function ideasPorCategoriaDelUsuario(req, res) {
+	let email = req.user;
+	let token = req.token;
 
-	
+	refUsuarioCategoria.on('value', (snap) => {
+		let lista = snap.val();
+		let user = null;
+		for(let key in lista){
+			console.log(lista[key].correo + ' < > '+ email);
+			if (lista[key].correo == email) {
+				user = lista[key];
+				console.log(user);
+				break;
+			}
+		}
 
+		if(user != null){
+			refIdea.on('value', (snap) => {
+				let listaIdea = snap.val();
+				let ideasDelUsuario = [];
 
+				for(let key in listaIdea){
+					if (listaIdea[key].categoria == user.categoria) {
+						ideasDelUsuario.push(listaIdea[key]);	
+						console.log(user);
+					}
+				}		
+
+				res.status(300).send(modelIdea.modelResponse(token, null, null, true, 'Se listaron las ideas del usuario', ideasDelUsuario.length, ideasDelUsuario));
+
+			});
+		}else{
+			res.status(404).send(modelIdea.modelResponse(token,null,null,false, 'El usuario no existe', 0, email));
+		}
+	});
 }
 
 function ideasSeguidas(req, res){
@@ -75,5 +106,7 @@ function ideasSeguidas(req, res){
 
 module.exports = {
 	listarIdeas,
-	crearIdea
+	crearIdea,
+	ideasPorCategoriaDelUsuario
 };
+

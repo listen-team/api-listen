@@ -8,16 +8,13 @@ const nodemailer = require('nodemailer');
 /*
 * Método para generar token de autenticación
 */
-function createToken (correo) {
-	console.log('Este es el correo : ' + correo);
+function createToken (user) {
 	const payload = {
-		sub : correo,
+		sub : user.correo,
 		iat : moment().unix(),
 		exp : moment().add(14, 'days').unix(),
 	};
-
-	console.log('Estoy creanto un token');
-
+	console.log('Creando el token para el usuario ' + user.correo);
 	return jwt.encode(payload, config.SECRET_TOKEN);
 }
 
