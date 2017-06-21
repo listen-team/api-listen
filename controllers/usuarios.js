@@ -5,6 +5,8 @@ const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
 const objResponse = require('.././models/modelResponse');
+//esto es para los esquemas de Google - Facebook
+const Schema = firebase.Schema;
 
 /**
  * Metodo para crear usuario de firebase
@@ -78,6 +80,19 @@ function createUser(req, res){
 	});	
 }
 
+let UserSchema = new Schema({
+	name			: String,
+	provider		: String, //  el proveedor del servicio
+	provider_id		:{type: String, unique: true}, // como el id del objeto
+	photo			:String,
+	createAt		:{type: Date, default: Date.now} // funcion, por default, la fecha en la que se ha registrado el usuario
+});
+//Con esto exporto el modelo Usuario para usarlo en otras partes de la api
+let User = firebase.model('User',UserSchema);
+
+
+
+/*
 //INICIO
 function loginWithGoogle(require,response){
 	//declaro mis variables
@@ -91,7 +106,7 @@ function loginWithGoogle(require,response){
 	//creamos un nuevo objeto que almacenara la inf. del proveedor
 	let provider = new firebase.auth.GoogleAuthProvider(user.correo,user.contrasena);
 	//le digo a google que usare su api de autentificacion
-	firebase.auth().signInWithPopup(provider).then((result)=>{
+	firebase.auth().signInWithRedirect(provider).then((result)=>{
 	//obtengo los valores que a mi me interesan:	
 	resolve(objResponse.modelResponse(service.createToken(user.correo),null,null,true,`Ha iniciado sesión en GOOGLE el usuario ${user.correo}`,1,user.correo));
 	}).catch((error)=>{
@@ -118,7 +133,7 @@ function loginWithGoogle(require,response){
 }
 
 //FIN de google
-
+*/
 
 /**
  * Metodo para iniciar sesión con firebase
