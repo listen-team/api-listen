@@ -80,7 +80,7 @@ function createUser(req, res){
 		res.status(500).send(error);
 	});	
 }
-
+/*
 let UserSchema = new Schema({
 	name			: String,
 	provider		: String, //  el proveedor del servicio
@@ -90,10 +90,10 @@ let UserSchema = new Schema({
 });
 //Con esto exporto el modelo Usuario para usarlo en otras partes de la api
 let User = firebase.model('User',UserSchema);
+*/
 
 
 
-/*
 //INICIO
 function loginWithGoogle(require,response){
 	//declaro mis variables
@@ -134,7 +134,7 @@ function loginWithGoogle(require,response){
 }
 
 //FIN de google
-*/
+
 
 /**
  * Metodo para iniciar sesión con firebase
@@ -294,6 +294,6 @@ module.exports = {
 	loginWithFirebase,
 	logoutWithFirebase,
 	sendPasswordResetEmail,
-	//loginWithGoogle,
+	loginWithGoogle,
 	verificacionEmail
 }

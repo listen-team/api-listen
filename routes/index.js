@@ -31,14 +31,14 @@ api.post('/login', ctrlUsuario.loginWithFirebase);
 api.post('/logout', ctrlUsuario.logoutWithFirebase);
 api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
 api.post('/verificarEmail', ctrlUsuario.verificacionEmail);
-//api.post('/loginWithGoogle', ctrlUsuario.loginWithGoogle);
+api.post('/loginWithGoogle', ctrlUsuario.loginWithGoogle);
 //seria la ruta para autentificarnos con Google y Facebook
-api.post('/auth/facebook', passport.authenticate('facebook'));
+//api.post('/auth/facebook', passport.authenticate('facebook'));
 // Ruta de callback, a la que redirigirá tras autenticarse con Facebook.
 // En caso de fallo redirige a otra vista '/login'
-api.post('/auth/facebook/callback', passport.authenticate('facebook',
+/*api.post('/auth/facebook/callback', passport.authenticate('facebook',
   { successRedirect: '/', failureRedirect: '/login' }
-));
+));*/
 
 //api.post('/auth/google', passport.authenticate('google'));
 

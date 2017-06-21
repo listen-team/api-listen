@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 const firebase = require('firebase');
 const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
@@ -51,4 +51,4 @@ module.exports = function(passport){
     })
 
     ));
-};
+};*/
