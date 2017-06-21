@@ -14,9 +14,7 @@ function createToken (user) {
 		iat : moment().unix(),
 		exp : moment().add(14, 'days').unix(),
 	};
-
-	console.log('Estoy creanto un token');
-
+	console.log('Creando el token para el usuario ' + user.correo);
 	return jwt.encode(payload, config.SECRET_TOKEN);
 }
 
@@ -42,7 +40,6 @@ function decodedToken (token) {
 			});
 		}
 	});
-	console.log(decoded);
 	return decoded;
 }	
 

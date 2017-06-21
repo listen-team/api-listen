@@ -47,7 +47,7 @@ function createUser(req, res){
 			nuevoUsuario.set(user);
 
 			resolve(objResponse.modelResponse(
-				service.createToken(user),
+				null,
 				null,
 				null,
 				true,
@@ -126,6 +126,7 @@ function loginWithGoogle(require,response){
  * @param {http | https} res  - Respuesta
  */
 function loginWithFirebase (req, res) {
+	
 	let user = {
 		correo : req.body.email,
 		contrasena : req.body.password
@@ -135,25 +136,12 @@ function loginWithFirebase (req, res) {
 		firebase.auth().signInWithEmailAndPassword(user.correo, user.contrasena)
 		.then((result) => {
 			resolve(objResponse.modelResponse(
-				service.createToken(user.correo),
-				null,
-				null,
-				true,
-				`Ha iniciado sesión el usuario ${user.correo}`,
-				1,
-				user.correo
+				service.createToken(user),null,null,true,`Ha iniciado sesión el usuario ${user.correo}`,1,user.correo
 			));
 		})
 		.catch((error) => {
 		  	if (error) {
-				reject(objResponse.modelResponse(
-					null,
-					error.code,
-					error.message,
-					false,
-					`Error al iniciar sesión con el usuario ${user.correo}`,
-					0,
-					user.correo
+				reject(objResponse.modelResponse(null,error.code,error.message,false,`Error al iniciar sesión con el usuario ${user.correo}`,0,user.correo
 				));
 			}
 		});
@@ -274,6 +262,7 @@ function verificacionEmail(req,res){
 	});	
 }
 
+<<<<<<< HEAD
 function iniciarSesion (req, res) {
 	let user = {
 		correo : req.body.email,
@@ -306,12 +295,18 @@ function iniciarSesion (req, res) {
 	});
 }
 
+=======
+>>>>>>> 9fdecaa7788ee64ad9d47e1977fb95ff72f085dc
 module.exports = {
 	createUser,
 	loginWithFirebase,
 	logoutWithFirebase,
 	sendPasswordResetEmail,
+<<<<<<< HEAD
 	iniciarSesion,
 	verificacionEmail,
 	loginWithGoogle
+=======
+	verificacionEmail
+>>>>>>> 9fdecaa7788ee64ad9d47e1977fb95ff72f085dc
 }

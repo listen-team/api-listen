@@ -37,14 +37,15 @@ api.get('/private',  auth ,(req, res) => {
 	res.status(200).send({
 		msg : 'Tienes acceso'
 	});
-	res.end();
+	//res.end();
 });
 
 
 /*
 * Modulo de idea
 */
-api.get('/idea', ctrlIdea.listarIdeas);
+api.get('/idea', auth, ctrlIdea.listarIdeas);
 api.post('/idea', ctrlIdea.crearIdea);
+api.get('/ideasxusuario', auth, ctrlIdea.ideasPorCategoriaDelUsuario)
 
 module.exports = api;
