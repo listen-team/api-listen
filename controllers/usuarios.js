@@ -47,6 +47,7 @@ function createUser(req, res){
 			});*/
 			service.sendMail(user);
 			///////
+			console.log('<ENTRE> ' + user);
 			nuevoUsuario.set(user);
 
 			resolve(objResponse.modelResponse(
@@ -75,9 +76,9 @@ function createUser(req, res){
 	});
 
 	promise.then((response) => {
-		res.status(200).send(response);	
+		res.send(response);	
 	}, (error) => {
-		res.status(500).send(error);
+		res.send(error);
 	});	
 }
 /*
@@ -242,7 +243,7 @@ function verificacionEmail(req,res){
 	const email = req.body.email;
 	const codigoVerificacion = req.body.codigoVerificacion;
 	
-	refUsuario.on('value',(snap)=>{
+	refUsuario.once('value',(snap)=>{
 		let listaCorreo = snap.val();
 		let objUsuario;
 		let key;
@@ -269,14 +270,14 @@ function verificacionEmail(req,res){
 
 				refUpdate.update(obj);
 
-				res.status(200).send(objResponse.modelResponse(
+				return res.send(objResponse.modelResponse(
 					null,null,null,true,"Verificacion Exitosa",1,objUsuario
 				));
 			}else{
-				res.status(404).send({msg : "el codigo de verificacion es incorrecto"});
+				return res.send({msg : "el codigo de verificacion es incorrecto"});
 			}
 		}else{
-			res.status(404).send({msg : "No Existe el correo"});
+			return res.send({msg : "No Existe el correo"});
 		}
 
 	});	
