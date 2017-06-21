@@ -5,6 +5,7 @@ const db = firebase.database();
 const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
 const objResponse = require('.././models/modelResponse');
+const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
 
 /**
  * Metodo para crear usuario de firebase
@@ -260,6 +261,17 @@ function verificacionEmail(req,res){
 		}
 
 	});	
+}
+
+function seguiPersona(req, res) {
+	let seguirPersonaNueva = refUsuariosSeguidos.push(req.body.email);
+	let key = seguirPersonaNueva.toString().split('/usuario_seguidos/')[1];
+	
+	let jsonPersonaSeguida = {
+		usuario : req.body.email
+		//personasSeguidas : 
+		//me quede aca
+	}
 }
 
 module.exports = {

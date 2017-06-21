@@ -67,7 +67,7 @@ function sendMail(user) {
 		subject : 'Verificación de Cuenta Listen',
 		html : '<h2>Hola, '+ user.nombre + ' ' + user.apellido + ':</h2>'+
 				'<p>Tu codigo de vericación es: </p>'+
-				user.verificacion+
+				user.codigoVerificacion+
 				'<p>Si no has emitido esta solicitud, ignora este mensaje.</p>'+
 				'<p>Gracias.</p>'+
 				'<p>El equipo de Team Listen.</p>'
