@@ -282,6 +282,6 @@ module.exports = {
 	loginWithFirebase,
 	logoutWithFirebase,
 	sendPasswordResetEmail,
-	loginWithGoogle,
+	//loginWithGoogle,
 	verificacionEmail
 }
