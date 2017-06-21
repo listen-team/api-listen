@@ -69,6 +69,7 @@ function ideasPorCategoriaDelUsuario(req, res) {
 	refUsuarioCategoria.on('value', (snap) => {
 		let lista = snap.val();
 		let user = null;
+
 		for(let key in lista){
 			console.log(lista[key].correo + ' < > '+ email);
 			if (lista[key].correo == email) {
@@ -82,15 +83,17 @@ function ideasPorCategoriaDelUsuario(req, res) {
 			refIdea.on('value', (snap) => {
 				let listaIdea = snap.val();
 				let ideasDelUsuario = [];
+				let contador = 0;
 
 				for(let key in listaIdea){
+					contador++
 					if (listaIdea[key].categoria == user.categoria) {
 						ideasDelUsuario.push(listaIdea[key]);	
-						console.log(user);
+						console.log(user + ' <> ' + contador);
 					}
 				}		
 
-				res.status(300).send(modelIdea.modelResponse(token, null, null, true, 'Se listaron las ideas del usuario', ideasDelUsuario.length, ideasDelUsuario));
+				res.status(200).send(modelIdea.modelResponse(token, null, null, true, 'Se listaron las ideas del usuario', ideasDelUsuario.length, ideasDelUsuario));
 
 			});
 		}else{
