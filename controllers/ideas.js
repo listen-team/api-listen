@@ -69,11 +69,13 @@ function ideasPorCategoriaDelUsuario(req, res) {
 	refUsuarioCategoria.on('value', (snap) => {
 		let lista = snap.val();
 		let user = null;
+		let keyUser =null;
 
 		for(let key in lista){
 			console.log(lista[key].correo + ' < > '+ email);
 			if (lista[key].correo == email) {
 				user = lista[key];
+				keyUser = key;
 				console.log(user);
 				break;
 			}
@@ -84,11 +86,25 @@ function ideasPorCategoriaDelUsuario(req, res) {
 				let listaIdea = snap.val();
 				let ideasDelUsuario = [];
 				let contador = 0;
-
+				
 				for(let key in listaIdea){
 					contador++
 					if (listaIdea[key].categoria == user.categoria) {
-						ideasDelUsuario.push(listaIdea[key]);	
+						let ideaUsu = {
+							id : key,
+							nombre : 'No tengo nombre',
+							descripcion : listaIdea[key].descripcion,
+							imagen : 'Todavia no tengo imagen',
+							like : 40,
+							cantContrib : 50,
+							idCreador : keyUser,
+							nombreCreador : user.nombre,
+							fotoCreador : '.img/fotoUser.jpg',
+							fotoContribuidor : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
+							sigueAlCreador : false
+						}
+						//ideasDelUsuario.push(listaIdea[key]);	
+						ideasDelUsuario.push(ideaUsu);	
 						console.log(user + ' <> ' + contador);
 					}
 				}		
