@@ -85,7 +85,19 @@ function ideasPorCategoriaDelUsuario(req, res) {
 			refIdea.on('value', (snap) => {
 				let listaIdea = snap.val();
 				let ideasDelUsuario = [];
+				///
+				let nombres = ['','Yefrin Laura Chavez','Alonso Moreno Postigo','Bruno Landacay','Eduardo Leandro Pretel',];
+				let cantidadUsuarios  = ['',50,45,80,102,87];
+				let cantidadContribuyentes  = ['',98,14,50,6,98];
+				let sigue = [true,true,true,false,true, false, false];
 				let contador = 0;
+				let fotos = ['', 
+					'https://randomuser.me/api/portraits/men/0.jpg',
+					'https://randomuser.me/api/portraits/men/1.jpg',
+					'https://randomuser.me/api/portraits/men/2.jpg',
+					'https://randomuser.me/api/portraits/men/3.jpg',
+					'https://randomuser.me/api/portraits/men/4.jpg',
+					'https://randomuser.me/api/portraits/men/5.jpg'];
 				let arrayNombre = ['hola','Reduccion del peaje','Libros Virtuales','Reduccion medio pasaje','Matrimonio homosexual','Reduccion pension cibertec'];
 				
 				for(let key in listaIdea){
@@ -97,12 +109,12 @@ function ideasPorCategoriaDelUsuario(req, res) {
 							descripcion : listaIdea[key].descripcion,
 							imagen : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
 							like : 40,
-							cantContrib : 50,
-							idCreador : keyUser,
-							nombreCreador : user.nombre,
-							fotoCreador : '.img/fotoUser.jpg',
+							cantContrib : cantidadContribuyentes[listaIdea[key].numero],
+							idCreador : cantidadUsuarios[listaIdea[key].numero],
+							nombreCreador : nombres[listaIdea[key].numero],
+							fotoCreador : fotos[listaIdea[key].numero],
 							fotoContribuidor : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
-							sigueAlCreador : false
+							sigueAlCreador : sigue[listaIdea[key].numero]
 						}
 						//ideasDelUsuario.push(listaIdea[key]);	
 						ideasDelUsuario.push(ideaUsu);	
