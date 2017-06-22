@@ -283,15 +283,44 @@ function verificacionEmail(req,res){
 	});	
 }
 
-function seguiPersona(req, res) {
-	let seguirPersonaNueva = refUsuariosSeguidos.push(req.body.email);
-	let key = seguirPersonaNueva.toString().split('/usuario_seguidos/')[1];
+function seguidoresPorUsuario(req, res) {
+	let correo  = req.user;
+	let nombreReferencia = correo.replace('@', '').replace('.', '');
+	let nuevoSeguidor = refUsuariosSeguidos.child(nombreReferencia);
+	//let key = nuevoSeguidor.toString().split('/usuario_seguidos/')[1];
 	
+	let token = req.token;
 	let jsonPersonaSeguida = {
-		usuario : req.body.email
-		//personasSeguidas : 
-		//me quede aca
+		usuario : {
+			email : correo
+			//nombre : req.body.nombre,
+			//apellido : req.body.apellido,
+			//foto : req.body.foto
+		}		
 	}
+	nuevoSeguidor.update(jsonPersonaSeguida);
+
+	const refSiguiendo = db.ref().child('usuario_seguidos').child(nombreReferencia).child('siguiendo');
+	let nuevo_Seguidor = refSiguiendo.push();
+
+	let objnuevo_Seguidor = {
+		nombre : req.body.nombre,
+		apellido : req.body.apellido
+	};
+
+	/////
+	//const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
+	//const refSiguiendo = refUsuariosSeguidos.child(key).child('siguiendo');
+	////////
+	nuevo_Seguidor.update(objnuevo_Seguidor);
+	
+
+
+	
+
+	
+	res.send({msg : 'Seguidor creado', data : jsonPersonaSeguida, lista : objnuevo_Seguidor});
+
 }
 
 module.exports = {
@@ -300,5 +329,6 @@ module.exports = {
 	logoutWithFirebase,
 	sendPasswordResetEmail,
 	loginWithGoogle,
-	verificacionEmail
+	verificacionEmail,
+	seguidoresPorUsuario
 }
