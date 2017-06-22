@@ -86,15 +86,16 @@ function ideasPorCategoriaDelUsuario(req, res) {
 				let listaIdea = snap.val();
 				let ideasDelUsuario = [];
 				let contador = 0;
+				let arrayNombre = ['hola','Reduccion del peaje','Libros Virtuales','Reduccion medio pasaje','Matrimonio homosexual','Reduccion pension cibertec'];
 				
 				for(let key in listaIdea){
 					contador++
 					if (listaIdea[key].categoria == user.categoria) {
 						let ideaUsu = {
 							id : key,
-							nombre : 'No tengo nombre',
+							nombre :arrayNombre[listaIdea[key].numero],
 							descripcion : listaIdea[key].descripcion,
-							imagen : 'Todavia no tengo imagen',
+							imagen : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
 							like : 40,
 							cantContrib : 50,
 							idCreador : keyUser,
