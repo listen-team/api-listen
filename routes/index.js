@@ -49,6 +49,8 @@ api.get('/private',  auth ,(req, res) => {
 	});
 	//res.end();
 });
+api.post('/seguirusuario',auth, ctrlUsuario.seguidoresPorUsuario);
+
 
 
 /*

@@ -102,40 +102,44 @@ function loginWithGoogle(require,response){
 		correo : require.body.email,
 		contrasena : require.body.contrasena
 	};
+
 	let promise = new Promise((resolve,reject)=>{
 	//esto es para saber en que estado el usuario
-	if(!firebase.auth().curentUser){
-	//creamos un nuevo objeto que almacenara la inf. del proveedor
-	let provider = new firebase.auth.GoogleAuthProvider(user.correo,user.contrasena);
-	//le digo a google que usare su api de autentificacion
-	firebase.auth().signInWithRedirect(provider).then((result)=>{
-	//obtengo los valores que a mi me interesan:	
-	resolve(objResponse.modelResponse(service.createToken(user.correo),null,null,true,`Ha iniciado sesión en GOOGLE el usuario ${user.correo}`,1,user.correo));
-	}).catch((error)=>{
-		if(error){
-			reject(objResponse.modelResponse(null,error.errorCode,error.message,false,`Error al iniciar sesión en GOOGLE con el usuario ${user.correo}`,1,user.correo));
-		}
-         //error de credenciales
-         let credential = error.credential;
-		 //verificamos si el error fue de credenciales 
-		if(errorCode === 'auth/account-exists-with-different-credential'){
-			console.log("Es el mismo USUARIO  ===> " + errorCode);
-		}
+			if(!firebase.auth().curentUser){
+				//creamos un nuevo objeto que almacenara la inf. del proveedor
+				let provider = new firebase.auth.GoogleAuthProvider(user.correo,user.contrasena);
+					provider.addScope('https://www.googleapis.com/auth/plus.login');
+				//le digo a google que usare su api de autentificacion
+				firebase.auth().signInWithRedirect(provider)
+				.then((result)=>{
+					//obtengo los valores que a mi me interesan:	
+					resolve(objResponse.modelResponse(service.createToken(user.correo),null,null,true,`Ha iniciado sesión en GOOGLE el usuario ${user.correo}`,1,user.correo));
+				}).catch((error)=>{
+					if(error){
+						reject(objResponse.modelResponse(null,error.errorCode,error.message,false,`Error al iniciar sesión en GOOGLE con el usuario ${user.correo}`,1,user.correo));
+					}
+					//error de credenciales
+					let credential = error.credential;
+					//verificamos si el error fue de credenciales 
+					if(errorCode === 'auth/account-exists-with-different-credential'){
+						console.log("Es el mismo USUARIO  ===> " + errorCode);
+						reject(objResponse.modelResponse(null,error.errorCode,error.message,false,`Error al iniciar sesión en GOOGLE con el usuario ${user.correo}`,1,user.correo));
+					}
+				});
+				
+		}else{
+				firebase.auth().signOut();
+			}	
 	});
-	
-}else{
-		 firebase.auth().signOut();
-	 }	
-	});	
+
 	promise.then((response) => {
-		res.status(200).send(response);	
+		response.status(200).send(response);	
 	}, (error) => {
-		res.status(500).send(error);
+		response.status(500).send(error);
 	});	
 }
 
 //FIN de google
-
 
 /**
  * Metodo para iniciar sesión con firebase
@@ -279,15 +283,44 @@ function verificacionEmail(req,res){
 	});	
 }
 
-function seguiPersona(req, res) {
-	let seguirPersonaNueva = refUsuariosSeguidos.push(req.body.email);
-	let key = seguirPersonaNueva.toString().split('/usuario_seguidos/')[1];
+function seguidoresPorUsuario(req, res) {
+	let correo  = req.user;
+	let nombreReferencia = correo.replace('@', '').replace('.', '');
+	let nuevoSeguidor = refUsuariosSeguidos.child(nombreReferencia);
+	//let key = nuevoSeguidor.toString().split('/usuario_seguidos/')[1];
 	
+	let token = req.token;
 	let jsonPersonaSeguida = {
-		usuario : req.body.email
-		//personasSeguidas : 
-		//me quede aca
+		usuario : {
+			email : correo
+			//nombre : req.body.nombre,
+			//apellido : req.body.apellido,
+			//foto : req.body.foto
+		}		
 	}
+	nuevoSeguidor.update(jsonPersonaSeguida);
+
+	const refSiguiendo = db.ref().child('usuario_seguidos').child(nombreReferencia).child('siguiendo');
+	let nuevo_Seguidor = refSiguiendo.push();
+
+	let objnuevo_Seguidor = {
+		nombre : req.body.nombre,
+		apellido : req.body.apellido
+	};
+
+	/////
+	//const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
+	//const refSiguiendo = refUsuariosSeguidos.child(key).child('siguiendo');
+	////////
+	nuevo_Seguidor.update(objnuevo_Seguidor);
+	
+
+
+	
+
+	
+	res.send({msg : 'Seguidor creado', data : jsonPersonaSeguida, lista : objnuevo_Seguidor});
+
 }
 
 module.exports = {
@@ -296,5 +329,6 @@ module.exports = {
 	logoutWithFirebase,
 	sendPasswordResetEmail,
 	loginWithGoogle,
-	verificacionEmail
+	verificacionEmail,
+	seguidoresPorUsuario
 }
