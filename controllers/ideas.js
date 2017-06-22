@@ -80,7 +80,9 @@ function ideasPorCategoriaDelUsuario(req, res) {
 				break;
 			}
 		}
-
+		
+		console.log(user == null);
+		console.log("user", user);
 		if(user != null){
 			refIdea.on('value', (snap) => {
 				let listaIdea = snap.val();
@@ -93,7 +95,7 @@ function ideasPorCategoriaDelUsuario(req, res) {
 				let contador = 0;
 				let fotos = ['', 
 					'https://randomuser.me/api/portraits/men/0.jpg',
-					'https://randomuser.me/api/portraits/men/1.jpg',
+					'https://avatars0.githubusercontent.com/u/17907355?v=3&s=400',
 					'https://randomuser.me/api/portraits/men/2.jpg',
 					'https://randomuser.me/api/portraits/men/3.jpg',
 					'https://randomuser.me/api/portraits/men/4.jpg',
@@ -126,7 +128,7 @@ function ideasPorCategoriaDelUsuario(req, res) {
 
 			});
 		}else{
-			res.status(404).send(modelIdea.modelResponse(token,null,null,false, 'El usuario no existe', 0, email));
+			res.status(404).send(modelIdea.modelResponse(token,null,null,false, 'El usuario no sigue a ninguna categoria', 0, email));
 		}
 	});
 }

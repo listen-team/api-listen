@@ -70,7 +70,7 @@ function sendMail(user) {
 				user.codigoVerificacion+
 				'<p>Si no has emitido esta solicitud, ignora este mensaje.</p>'+
 				'<p>Gracias.</p>'+
-				'<p>El equipo de Team Listen.</p>'
+				'<p>El equipo de Listen.</p>'
 	};
 	transporter.sendMail(HelperOptions, (error, info) => {
 		if (error) {
