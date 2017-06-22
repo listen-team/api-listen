@@ -86,7 +86,7 @@ function ideasPorCategoriaDelUsuario(req, res) {
 				let listaIdea = snap.val();
 				let ideasDelUsuario = [];
 				///
-				let nombres = ['','Yefrin Laura Chavez','Alonso Moreno Postigo','Bruno Landacay','Eduardo Leandro Pretel',];
+				let nombres = ['','Yefrin Laura','Alonso Moreno','Bruno Landacay','Eduardo Leandro','Luis Acosta'];
 				let cantidadUsuarios  = ['',50,45,80,102,87];
 				let cantidadContribuyentes  = ['',98,14,50,6,98];
 				let sigue = [true,true,true,false,true, false, false];
