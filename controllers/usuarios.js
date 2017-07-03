@@ -2,13 +2,18 @@
 
 const firebase = require('firebase');
 const db = firebase.database();
+// Referencia al objeto usuario de la base de datos
 const refUsuario = db.ref().child('usuario');
+// Importa el modulo services
 const service = require('.././services');
+// Importa el objeto response
 const objResponse = require('.././models/modelResponse');
 const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
 
+
 // Metodo para crear usuario
 function createUser(req, res){
+	console.log('Request >>> http://localhost:3002/api/user');
 	let nombre = req.body.nombre;
 	let apellido  = req.body.apellido;
 	let correo = req.body.correo;
@@ -111,6 +116,7 @@ function loginWithGoogle(require,response){
 
 // Método parar iniciar sesión con firebase
 function loginWithFirebase (req, res) {
+	console.log('Request >>> http://localhost:3002/api/login')
 	let user = {
 		correo : req.body.email,
 		contrasena : req.body.password
@@ -178,6 +184,7 @@ function logoutWithFirebase (req, res) {
 
 // Metodo para restablecer contraseña
 function sendPasswordResetEmail (req, res) {
+	console.log('Request >>> http://localhost:3002/api/senResetPassword');
 	let email = req.body.email;
 
 	let promise = new Promise((resolve, reject) => {
@@ -203,6 +210,7 @@ function sendPasswordResetEmail (req, res) {
 
 // Método para verificar el email
 function verificacionEmail(req,res){
+	console.log('Request >>> http://localhost:3002/api/verificarEmail');
 	const email = req.body.email;
 	const codigoVerificacion = req.body.codigoVerificacion;
 
@@ -212,11 +220,9 @@ function verificacionEmail(req,res){
 		let key;
 
 		for(let llave in listaCorreo){
-			console.log(llave);
 			if(listaCorreo[llave].correo == email){
 				key = llave;
 				objUsuario = listaCorreo[llave];
-				console.log(objUsuario);
 				break;
 			}
 		}
@@ -248,7 +254,7 @@ function verificacionEmail(req,res){
 
 // Flata terminar este metodo
 function seguidoresPorUsuario(req, res) {
-	let correo  = req.user;
+	/*let correo  = req.user;
 	let nombreReferencia = correo.replace('@', '').replace('.', '');
 	let nuevoSeguidor = refUsuariosSeguidos.child(nombreReferencia);
 	//let key = nuevoSeguidor.toString().split('/usuario_seguidos/')[1];
@@ -284,11 +290,53 @@ function seguidoresPorUsuario(req, res) {
 
 	
 	res.send({msg : 'Seguidor creado', data : jsonPersonaSeguida, lista : objnuevo_Seguidor});
-
+*/
 }
 
+// Método para seguir usuario
 function seguirPersona(req, res) {
+	console.log('Request >>> http://localhost:3002/api/seguirPersona');
+	let correo2 = req.body.usuarioAseguir;
+	let usuario = req.robjUsuario;
 	
+	if(correo2 !== usuario.correo){
+		refUsuario.once('value', (snap) => {
+			let lista = snap.val();
+			// El usuario a seguir es el usuario 2
+			let usuario2 = null;
+			
+			for(let key in lista){
+				if (lista[key].correo == correo2) {
+					usuario2 = snap.child(key).val();
+					break;
+				}
+			}
+			
+			if(usuario2 !== null){
+				let foto = usuario2.foto === undefined  || usuario2.foto === null ? '' : usuario2.foto;
+				let dni = usuario2.dni === undefined  || usuario2.dni == null ? '' : usuario2.dni;
+				let crearPersona = refUsuariosSeguidos.child(usuario.username).child(usuario2.username);
+				let nuevoPersonaASeguir = {
+					nombre : usuario2.nombre,
+					apellido : usuario2.apellido,
+					correo : usuario2.correo,
+					contrasena : usuario2.contrasena,
+					fecha_nacimiento: usuario2.fecha_nacimiento,
+					username : usuario2.username,
+					foto,
+					dni
+				}; 
+				crearPersona.set(nuevoPersonaASeguir);
+				res.send(objResponse.modelResponse('', null, null, true, `El usuario ${usuario.username} sigue a ${usuario2.username}`, 1, 'ok'));
+			}else if(usuario2 === null){
+				res.send(objResponse.modelResponse('', 'NOT_FOUND_USER', 'Usuario no registrado', false, `El usuario ${correo2} no existe`, 0, 'error'));
+			}else{
+				res.send(objResponse.modelResponse('', 'ERROR', 'Error al seguir usuario', false, `Error cuando el  usuario ${usuario.username} sigue a ${correo2}`, 0, 'error'));
+			}
+		});	
+	}else{
+		res.send(objResponse.modelResponse('', 'SAME_USERS', 'Usuarios iguales', false, `El usuario ${usuario.correo} no se puede seguir a si mismo `, 0, 'error'));
+	}
 }
 
 
@@ -299,5 +347,6 @@ module.exports = {
 	sendPasswordResetEmail,
 	loginWithGoogle,
 	verificacionEmail,
-	seguidoresPorUsuario
+	seguidoresPorUsuario,
+	seguirPersona
 }
