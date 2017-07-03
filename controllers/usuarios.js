@@ -29,7 +29,8 @@ function createUser(req, res){
 		fecha_nacimiento: fecha_nacimiento,
 		condicion : condicion,
 		codigoVerificacion : codigoVerificacion,
-		estadoVerifiacion : false
+		estadoVerifiacion : false,
+		username : key
 	};
 
 	let promise = new Promise((resolve, reject) => {
@@ -245,6 +246,7 @@ function verificacionEmail(req,res){
 	});	
 }
 
+// Flata terminar este metodo
 function seguidoresPorUsuario(req, res) {
 	let correo  = req.user;
 	let nombreReferencia = correo.replace('@', '').replace('.', '');
@@ -284,6 +286,11 @@ function seguidoresPorUsuario(req, res) {
 	res.send({msg : 'Seguidor creado', data : jsonPersonaSeguida, lista : objnuevo_Seguidor});
 
 }
+
+function seguirPersona(req, res) {
+	
+}
+
 
 module.exports = {
 	createUser,
