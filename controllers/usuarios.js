@@ -6,18 +6,9 @@ const refUsuario = db.ref().child('usuario');
 const service = require('.././services');
 const objResponse = require('.././models/modelResponse');
 const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
-//esto es para los esquemas de Google - Facebook
-const Schema = firebase.Schema;
 
-/**
- * Metodo para crear usuario de firebase
- * @param {http | https} req - Peticion
- * @param {http | https} res  - Respuesta
- */
+// Metodo para crear usuario
 function createUser(req, res){
-	let nuevoUsuario = refUsuario.push();
-	let key  = nuevoUsuario.toString().split('/usuario/')[1];
-//Pina Records - YefriLactala
 	let nombre = req.body.nombre;
 	let apellido  = req.body.apellido;
 	let correo = req.body.correo;
@@ -25,7 +16,10 @@ function createUser(req, res){
 	let fecha_nacimiento = req.body.fecha_nacimiento;
 	let condicion = req.body.condicion;
 	let codigoVerificacion = Math.round((Math.random()*(999999 - 100000) + 100000));
-
+	// id del usuario
+	let iduser = nombre.split(" ")[0]+apellido.split(" ")[0];
+	let nuevoUsuario = refUsuario.child(iduser.toLowerCase());
+	let key  = nuevoUsuario.toString().split('/usuario/')[1];
  
 	let user = {
 		nombre : nombre,
@@ -37,19 +31,12 @@ function createUser(req, res){
 		codigoVerificacion : codigoVerificacion,
 		estadoVerifiacion : false
 	};
-// fin de Pina Records
+
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().createUserWithEmailAndPassword(correo, contrasena)
 		.then((result) => {
-			///////
-			/*firebase.auth().onAuthStateChanged(function(user) {
-			  user.sendEmailVerification();
-			});*/
 			service.sendMail(user);
-			///////
-			console.log('<ENTRE> ' + user);
 			nuevoUsuario.set(user);
-
 			resolve(objResponse.modelResponse(
 				null,
 				null,
@@ -57,7 +44,7 @@ function createUser(req, res){
 				true,
 				`Se registro el usuario ${key}`,
 				1,
-				user
+				"ok"
 			));
 		})
 		.catch((error) => {
@@ -69,7 +56,7 @@ function createUser(req, res){
 					false,
 					`Error al crear el usuario ${user.apellido} ${user.nombre}`,
 					0,
-					user
+					"error"
 				));
 			}
 		});
@@ -81,35 +68,17 @@ function createUser(req, res){
 		res.send(error);
 	});	
 }
-/*
-let UserSchema = new Schema({
-	name			: String,
-	provider		: String, //  el proveedor del servicio
-	provider_id		:{type: String, unique: true}, // como el id del objeto
-	photo			:String,
-	createAt		:{type: Date, default: Date.now} // funcion, por default, la fecha en la que se ha registrado el usuario
-});
-//Con esto exporto el modelo Usuario para usarlo en otras partes de la api
-let User = firebase.model('User',UserSchema);
-*/
 
-
-
-//INICIO
 function loginWithGoogle(require,response){
-	//declaro mis variables
 	let user = {
 		correo : require.body.email,
 		contrasena : require.body.contrasena
 	};
 
 	let promise = new Promise((resolve,reject)=>{
-	//esto es para saber en que estado el usuario
 			if(!firebase.auth().curentUser){
-				//creamos un nuevo objeto que almacenara la inf. del proveedor
 				let provider = new firebase.auth.GoogleAuthProvider(user.correo,user.contrasena);
 					provider.addScope('https://www.googleapis.com/auth/plus.login');
-				//le digo a google que usare su api de autentificacion
 				firebase.auth().signInWithRedirect(provider)
 				.then((result)=>{
 					//obtengo los valores que a mi me interesan:	
@@ -139,15 +108,8 @@ function loginWithGoogle(require,response){
 	});	
 }
 
-//FIN de google
-
-/**
- * Metodo para iniciar sesión con firebase
- * @param {http | https} req - Peticion
- * @param {http | https} res  - Respuesta
- */
+// Método parar iniciar sesión con firebase
 function loginWithFirebase (req, res) {
-	
 	let user = {
 		correo : req.body.email,
 		contrasena : req.body.password
@@ -161,8 +123,14 @@ function loginWithFirebase (req, res) {
 			));
 		})
 		.catch((error) => {
-		  	if (error) {
-				reject(objResponse.modelResponse(null,error.code,error.message,false,`Error al iniciar sesión con el usuario ${user.correo}`,0,user.correo
+		  	if (error.code == 'auth/user-not-found') {
+				reject(objResponse.modelResponse('',error.code,error.message,false,`El usuario ${user.correo} no se encuentra registrado`,0,'error'
+				));
+			}else if(error.code == 'auth/wrong-password'){
+				reject(objResponse.modelResponse('',error.code,error.message,false,`La contraseña del usuario ${user.correo} es incorrecta`,0,'error'
+				));
+			}else{
+				reject(objResponse.modelResponse('',error.code,error.message,false,`Error al iniciar sesion con el usuario ${user.correo}`,0,'error'
 				));
 			}
 		});
@@ -175,11 +143,7 @@ function loginWithFirebase (req, res) {
 	});
 }
 
-/**
- * Metodo para cerrar sesión con una cuenta de Listen
- * @param {http | https} req - Peticion
- * @param {http | https} res  - Respuesta
- */
+// Metodo para cerra sesion
 function logoutWithFirebase (req, res) {
 	let email = req.body.email;
 
@@ -210,23 +174,21 @@ function logoutWithFirebase (req, res) {
 	});	
 }
 
+
+// Metodo para restablecer contraseña
 function sendPasswordResetEmail (req, res) {
 	let email = req.body.email;
 
 	let promise = new Promise((resolve, reject) => {
 		firebase.auth().sendPasswordResetEmail(email)
 		.then((result) => {
-			resolve({
-				'msg' : `Se envio el correo de restablecimiento de contraseña a ${email}`
-			});
+			resolve(objResponse.modelResponse('', null, null, true, `Se envio el correo de restablecimiento de contraseña a ${email}`, 1, 'ok' ));
 		})
 		.catch((error) => {
-			if (error) {
-				reject({
-					'email': email,
-					'errorCode' : error.code,
-					'errorMessage' : error.message
-				});
+			if(error.code == 'auth/user-not-found'){
+				reject(objResponse.modelResponse('', error.code, error.message, false, `El usuario ${email} no se encuentra registrado`, 0, 'error'));
+			}else{
+				reject(objResponse.modelResponse('', error.code, error.message, false, `Error al enviar correo de restablecimiento a ${email}`, 0, 'error'));
 			}
 		});
 	});
@@ -238,18 +200,16 @@ function sendPasswordResetEmail (req, res) {
 	});	
 }
 
+// Método para verificar el email
 function verificacionEmail(req,res){
-	
 	const email = req.body.email;
 	const codigoVerificacion = req.body.codigoVerificacion;
-	
+
 	refUsuario.once('value',(snap)=>{
 		let listaCorreo = snap.val();
 		let objUsuario;
 		let key;
 
-
-		//declaro un for para recorrer los valores que traigo
 		for(let llave in listaCorreo){
 			console.log(llave);
 			if(listaCorreo[llave].correo == email){
@@ -259,7 +219,7 @@ function verificacionEmail(req,res){
 				break;
 			}
 		}
-		console.log(objUsuario);
+
 		if(objUsuario !== undefined){
 			if(objUsuario.codigoVerificacion == codigoVerificacion){
 				//actualizacion
@@ -271,13 +231,15 @@ function verificacionEmail(req,res){
 				refUpdate.update(obj);
 
 				return res.send(objResponse.modelResponse(
-					null,null,null,true,"Verificacion Exitosa",1,objUsuario
+					'',null,null,true,"Verificacion Exitosa",1,'ok'
 				));
 			}else{
-				return res.send({msg : "el codigo de verificacion es incorrecto"});
+				return res.send(objResponse.modelResponse('', 'CODIGO_INCORRECTO', 'El código de verificación es incorrecto', 
+				false, "El código de verificación es incorrecto", 0, "error"));
 			}
 		}else{
-			return res.send({msg : "No Existe el correo"});
+			return res.send(objResponse.modelResponse('', 'CORREO_INVALIDO', 'No existe el correo', 
+				false, "El correo ingresado no esta registrado", 0, "error"));
 		}
 
 	});	
