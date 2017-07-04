@@ -17,8 +17,8 @@ const auth = require('.././middlewares/auth');
 /*
 * Modulo de categoria
 */
-api.get('/categoria', ctrlCategoria.listarCategorias);
-api.get('/categoria/:id', ctrlCategoria.obtenerCategoria);
+api.get('/categoria', auth,ctrlCategoria.listarCategorias);
+api.get('/categoria/:id', auth, ctrlCategoria.obtenerCategoria);
 api.post('/categoria', ctrlCategoria.crearCategoria);
 api.put('/categoria/:id', ctrlCategoria.actualizarCategoria);
 api.delete('/categoria/:id', ctrlCategoria.eliminarCategoria);
