@@ -4,6 +4,7 @@ const firebase = require('firebase');
 const config = require('.././config');
 const db = firebase.database();
 const refCategoria = db.ref().child('categoria');
+const objResponse = require('.././models/modelResponse');
 
 
 /*
@@ -11,22 +12,25 @@ const refCategoria = db.ref().child('categoria');
 */
 function obtenerCategoria (req, res) {
 	let id = req.params.id;
-
-	refCategoria.on('value', (snap) => {
+	console.log(`Request >>> http://localhost:3002/api/categoria/${id}`);
+	refCategoria.once('value', (snap) => {
 		let lista = snap.val();
-		let objCategoria;
+		let objCategoria = null;
 
 		for(let key in lista){
-			if (lista[key].numero == id) {
-				 objCategoria = snap.child(key).val();
-				 break;
+			if (key === id) {
+				objCategoria = {
+					id : key,
+					tipo : snap.val()[key].tipo
+				};
+				break;
 			}
 		}
 		
-		if (objCategoria != null) {
-			res.status(200).send(objCategoria);
+		if (objCategoria !== null) {
+			res.send(objResponse.modelResponse('', '', '', true, `Se obtubo la categoria ${objCategoria.tipo}`, 1, objCategoria))
 		}else{
-			res.status(404).send({msg : "No existe la categoria"});
+			res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'Categoria no encontrada', false, `No existe la categoria ${id}`, 0, 'error'))
 		}
 	});
 }
@@ -35,27 +39,52 @@ function obtenerCategoria (req, res) {
 * Retornas todas las categorias existentes
 */
 function listarCategorias (req, res) {
-	let data;
-	refCategoria.on('value', (snap) => {
-		data = snap.val();
-		console.log(snap.val());
+	console.log(`Request >>> http://localhost:3002/api/categoria`);
+	refCategoria.once('value', (snap) => {
+		let categorias = [];
+		for(let key in snap.val()){
+			let json = {
+				id : key,
+				tipo : snap.val()[key].tipo
+			};
+			categorias.push(json);
+		}
+		res.status(200).send(objResponse.modelResponse('', '', '', true, 'Lista de categorias', categorias.length, categorias));
 	});
-	res.status(200).send(data);
 }
 
 /*
 * Crea una nueva categoria
 */
 function crearCategoria (req, res) {
-	let nuevaCategoria = refCategoria.child(''+req.body.numero);
-	let obj = {
-		numero : req.body.numero,
-		tipo : req.body.tipo
-	};
+	console.log('Request >>> http://localhost:3002/api/categoria');
+	let tipo = req.body.tipo === null || req.body.tipo === undefined ? '' : req.body.tipo;
 
-	nuevaCategoria.set(obj);
-	
-	res.status(200).send({msg : 'Se registro el producto'});	
+	if (tipo !== '') {
+		refCategoria.once('value', (snap) => {
+			let existeCategoria = null;
+			for(let key in snap.val()){
+				if(snap.val()[key].tipo === tipo){
+					existeCategoria = snap.val()[key];
+					break;
+				}
+			}
+
+			if(existeCategoria === null){
+				let nuevaCategoria = refCategoria.push();
+				let obj = {
+					tipo
+				};	
+
+				nuevaCategoria.set(obj);
+				res.send(objResponse.modelResponse('', '', '', true, 'Se registro la categoria', 1, 'ok'));	
+			}else{
+				res.send(objResponse.modelResponse('', 'EXISTS_CATEGORY', 'Categoria duplicada', false, 'La categoría ya existe', 0, 'error'));
+			}
+		});
+	}else{
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'La categoria esta vacia', false, 'Debe de ingresar la categoria', 0, 'error'));	
+	}
 }
 
 
@@ -63,18 +92,44 @@ function crearCategoria (req, res) {
 * Actualizar una categoria por su id
 */
 function actualizarCategoria(req, res){
-	let refObjeto = refCategoria.child(''+req.params.id);
-	let obj = {
-		numero : req.body.numero,
-		tipo : req.body.tipo
-	};
+	let idCategoria = req.params.id === null || req.params.id === undefined ? '' : req.params.id;
+	console.log(`Request >>> http://localhost:3002/api/categoria/${idCategoria}`);
 
-	refObjeto.update(obj);
+	if (idCategoria !== '') {
+		///////////////////////////////////////////////////////////
+		refCategoria.once('value', (snap) => {
+			let lista = snap.val();
+			let objCategoria = null;
 
-	if (refObjeto != null) {
-		res.status(200).send({msg : 'Categoria actualizada'});
+			for(let key in lista){
+				if (key === idCategoria) {
+					objCategoria = {
+						id : key,
+						tipo : snap.val()[key].tipo
+					};
+					break;
+				}
+			}
+			
+			if (objCategoria !== null) {
+				let refObjeto = refCategoria.child(''+req.params.id);
+				let obj = {
+					tipo : req.body.tipo === null || req.body.tipo === undefined ? '' : req.body.tipo
+				};
+
+				if(obj.tipo !== ''){
+					refObjeto.update(obj);
+					res.send(objResponse.modelResponse('', '', '', true, `Se actualizó la categoria ${obj.tipo}`, 1, 'ok'))
+				}else{
+					res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'Tipo de categoria vacía', false, `Ingresar el tipo de la categoria`, 0, 'error'))
+				}
+			}else{
+				res.send(objResponse.modelResponse('', 'NOT_FOUND', 'Categoria no encontrada', false, `No existe la categoria ${idCategoria}`, 0, 'error'))
+			}
+		});
+		///////////////////////////////////////////////////////////
 	}else{
-		res.status(404).send({msg : "No existe la categoria"});
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'No ingreso categoria', false, "No ha ingresado la categoria", 0, 'error'));
 	}
 }
 
@@ -91,10 +146,10 @@ function eliminarCategoria (req, res) {
 
 			objCategoria.remove()
 				.then(() =>{
-					resolve({msg : 'La categoria ha sido eliminada'});
+					resolve(objResponse.modelResponse('', '', '', true, `La categoria ${id} ha sido eliminada`, 1, 'ok'));
 				})
 				.catch((error) => {
-					reject({msg : 'No existe la categoria'});
+					reject(objResponse.modelResponse('', 'NOT_FOUND', 'Categoria no encontrada', false, `La categoria ${id} no existe`, 0, 'error'));
 				});
 		});	
 	});
