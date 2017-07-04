@@ -8,6 +8,8 @@ const refUser = db.ref().child('usuario');
 const idea = require('.././models/modelIdea');
 const modelIdea = require('.././models/modelResponse');
 const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
+const service = require('.././services');
+const response = require('.././models/modelResponse');
 
 
 /**
@@ -34,32 +36,33 @@ function listarIdeas (req, res) {
  * @param {http | https} res  - Respuesta
  */
 function crearIdea (req, res) {
-	let nuevaIdea = refIdea.push();
-	let key = nuevaIdea.toString().split('/idea/')[1];
-	let num = req.body.numero;
-	let ben = req. body.beneficios;
-	let des = req.body.descripcion;
-	let dis = req.body.disposicionesFinales;
-	let efe = req.body.efectos;
-	let fac = req.body.fechaActualizacion;
-	let fel = req.body.fechaElaboracion;
-	let form = req.body.formulaLegal;
-	let mot = req.body.motivos;
-	let tit = req.body.titular;
-	let cat = req.body.categoria;
+	let crearIdea = refIdea.push();
+	let key = crearIdea.toString().split('/idea/')[1];
+	let usuario = req.robjUsuario;
 
-	nuevaIdea.set(idea.modelIdea(num, ben, des, dis, efe, fac, fel, form, mot, tit, cat));
-	
-	res.status(200).send(
-		modelIdea.modelResponse(
-			null,
-			null,
-			null, 
-			true, 
-			`Se registro la idea ${key}`, 
-			1, 
-			idea.modelIdea(num, ben, des, dis, efe, fac, fel, form, mot, tit, cat))
-	);	
+	let nuevaIdea = {
+		nombre : req.body.nombre === null || req.body.nombre === undefined ? '' : req.body.nombre,
+		descripcion : req.body.descripcion === null || req.body.descripcion === undefined ? '' : req.body.descripcion,
+		beneficios: req.body.beneficios === null || req.body.beneficios === undefined ? '' : req.body.beneficios,
+		disposicionesFinales: req.body.disposicionesFinales === null || req.body.disposicionesFinales === undefined ? '' : req.body.disposicionesFinales,
+		efectos: req.body.efectos === null || req.body.efectos === undefined ? '' : req.body.efectos,
+		fechaElaboracion: service.getDate(),
+		formulaLegal: req.body.formulaLegal === null || req.body.formulaLegal === undefined ? '' : req.body.formulaLegal,
+		motivos: req.body.motivos === null || req.body.motivos === undefined ? '' : req.body.motivos,
+		imagen : req.body.imagen === null || req.body.imagen === undefined ? '' : req.body.imagen,
+		likes : 0,
+		contribuidores : '',
+		creador : {
+			username : usuario.username,
+			nombre : usuario.nombre,	
+			apellido : usuario.apellido,
+			foto : usuario.foto === null || usuario.foto === undefined ? '' : usuario.foto
+		},
+		categoria : req.body.categoria === null || req.body.categoria === undefined ? '' : req.body.categoria,
+	}
+
+	crearIdea.set(nuevaIdea);
+	res.send(response.modelResponse('', '', '', true, `Se registro la idea ${key}`, 1, 'ok'));
 }
 
 function ideasPorCategoriaDelUsuario(req, res) {

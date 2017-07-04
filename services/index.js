@@ -80,8 +80,18 @@ function sendMail(user) {
 
 }
 
+// Método para obtener la fecha actual
+function getDate (){
+    let date = new Date();
+    let anio = date.getFullYear();
+    let mes = date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1;
+    let dia = date.getDay() < 10 ? '0'+date.getDate() : date.getDate() ;
+    return `${anio}-${mes}-${dia}`;
+}
+
 module.exports = {
 	createToken,
 	decodedToken,
-	sendMail
+	sendMail,
+	getDate
 }

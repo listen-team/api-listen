@@ -12,6 +12,8 @@ const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
 //  Referencia al objeto usuarioxcategoria de la base de datos
 const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
 const refCategoria = db.ref().child('categoria');
+const refIdea = db.ref().child('idea');
+const refSeguirIdea = db.ref().child('ideas_seguidas');
 
 // Metodo para crear usuario
 function createUser(req, res){
@@ -376,6 +378,59 @@ function seguirCategoria(req, res) {
 	}
 }
 
+// Método para seguir idea
+function seguirIdea(req, res) {
+	//console.log()
+	let usuario = req.robjUsuario;
+	let idIdea = req.body.idIdea === null || req.body.idIdea === undefined ? '' : req.body.idIdea;
+
+	if (idIdea !== '') {
+		refIdea.once('value',  (snap) => {
+			let idea = null;
+
+			for(let key in snap.val()){
+				if (key === idIdea) {
+					idea = snap.val()[key];
+					break;
+				}
+			}
+
+			if (idea !== null) {
+				let crearIdea = refSeguirIdea.child(usuario.username).child(idIdea);
+
+				let nuevaIdea = {
+					nombre : idea.nombre,
+					descripcion : idea.descripcion,
+					beneficios: idea.beneficios,
+					disposicionesFinales: idea.disposicionesFinales,
+					efectos: idea.efectos,
+					fechaElaboracion: idea.fechaElaboracion,
+					formulaLegal: idea.formulaLegal,
+					motivos: idea.motivos,
+					imagen : idea.imagen,
+					likes : idea.likes,
+					contribuidores : idea.contribuidores,
+					creador : {
+						username : idea.creador.username,
+						nombre : idea.creador.nombre,	
+						apellido : idea.creador.apellido,
+						foto : idea.creador.foto
+					},
+					categoria : idea.categoria,
+				}
+				crearIdea.set(nuevaIdea);
+				res.send(objResponse.modelResponse('','','',true, `El usuario ${usuario.username} esta siguiendo la idea ${idIdea}`, 1, 'ok'));
+			}else if(idea === null){
+				res.send(objResponse.modelResponse('', 'NOT_FOUND', 'Idea no encontrada', false, `La idea ${idIdea} no existe`, 0, 'error'));
+			}else{
+				res.send(objResponse.modelResponse('', 'ERROR', 'Error al seguir idea', false, `Error cuando el usuario ${usuario.username} intento seguir la idea ${idIdea}`, 0, 'error'));	
+			}
+		});
+	}else{
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'El id de la idea esta vacío', false, `No ha ingresado el id de la idea a seguir`, 0, 'error'));
+	}
+}
+
 
 module.exports = {
 	createUser,
@@ -386,5 +441,6 @@ module.exports = {
 	verificacionEmail,
 	seguidoresPorUsuario,
 	seguirPersona,
-	seguirCategoria
+	seguirCategoria,
+	seguirIdea
 }

@@ -32,26 +32,17 @@ api.post('/logout', ctrlUsuario.logoutWithFirebase);
 api.post('/senResetPassword', ctrlUsuario.sendPasswordResetEmail);
 api.post('/verificarEmail', ctrlUsuario.verificacionEmail);
 api.post('/loginWithGoogle', ctrlUsuario.loginWithGoogle);
-//seria la ruta para autentificarnos con Google y Facebook
-//api.post('/auth/facebook', passport.authenticate('facebook'));
-// Ruta de callback, a la que redirigirá tras autenticarse con Facebook.
-// En caso de fallo redirige a otra vista '/login'
-/*api.post('/auth/facebook/callback', passport.authenticate('facebook',
-  { successRedirect: '/', failureRedirect: '/login' }
-));*/
-
-//api.post('/auth/google', passport.authenticate('google'));
-
-api.get('/private',  auth ,(req, res) => {
+api.get('/testing', auth ,(req, res) => {
 	//res.writeHead(301, {Location : 'https://www.youtube.com/'});
 	res.status(200).send({
-		msg : 'Tienes acceso'
+		msg : `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDay()}`
 	});
 	//res.end();
 });
 api.post('/seguirusuario',auth, ctrlUsuario.seguidoresPorUsuario);
 api.post('/seguirPersona', auth, ctrlUsuario.seguirPersona);
 api.post('/seguirCategoria', auth, ctrlUsuario.seguirCategoria);
+api.post('/seguirIdea', auth, ctrlUsuario.seguirIdea);
 
 
 
@@ -59,7 +50,7 @@ api.post('/seguirCategoria', auth, ctrlUsuario.seguirCategoria);
 * Modulo de idea
 */
 api.get('/idea', auth, ctrlIdea.listarIdeas);
-api.post('/idea', ctrlIdea.crearIdea);
+api.post('/idea', auth, ctrlIdea.crearIdea);
 api.get('/ideasxusuario', auth, ctrlIdea.ideasPorCategoriaDelUsuario)
 
 module.exports = api;
