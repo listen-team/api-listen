@@ -51,6 +51,7 @@ api.get('/private',  auth ,(req, res) => {
 });
 api.post('/seguirusuario',auth, ctrlUsuario.seguidoresPorUsuario);
 api.post('/seguirPersona', auth, ctrlUsuario.seguirPersona);
+api.post('/seguirCategoria', auth, ctrlUsuario.seguirCategoria);
 
 
 

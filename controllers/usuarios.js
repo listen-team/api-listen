@@ -9,7 +9,9 @@ const service = require('.././services');
 // Importa el objeto response
 const objResponse = require('.././models/modelResponse');
 const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
-
+//  Referencia al objeto usuarioxcategoria de la base de datos
+const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
+const refCategoria = db.ref().child('categoria');
 
 // Metodo para crear usuario
 function createUser(req, res){
@@ -181,7 +183,6 @@ function logoutWithFirebase (req, res) {
 	});	
 }
 
-
 // Metodo para restablecer contraseña
 function sendPasswordResetEmail (req, res) {
 	console.log('Request >>> http://localhost:3002/api/senResetPassword');
@@ -339,6 +340,42 @@ function seguirPersona(req, res) {
 	}
 }
 
+// Método para seguir categoría
+function seguirCategoria(req, res) {
+	console.log('Request >>> http://localhost:3002/api/seguirCategoria');
+	let usuario = req.robjUsuario;
+	let categoria = req.body.idCategoria === null || req.body.idCategoria === undefined ? '' : req.body.idCategoria;
+	
+	if (categoria !== '') {
+		refCategoria.once('value', (snap) => {
+			let objCategoria = null;
+
+			for(let key in snap.val()){
+				if(key === categoria){
+					objCategoria = snap.val()[key];
+					break;
+				}
+			}
+
+			if(objCategoria !== null){
+				let crearCategoria  = refUsuarioCategoria.child(usuario.username).child(categoria);
+				let nuevaCategoria = {
+					tipo : objCategoria.tipo
+				}
+				crearCategoria.set(nuevaCategoria);
+				res.send(objResponse.modelResponse('', '', '', true, `El usuario ${usuario.username} esta siguiendo la categoría ${categoria}`, 1, 'ok'));
+			}else if(objCategoria === null){
+				res.send(objResponse.modelResponse('', 'NOT_FUND', 'Categoria no encontrada', false, `La categoria ${categoria} no existe`,0, 'error'));
+			}else{
+				res.send(objResponse.modelResponse('', 'ERROR', 'Error al seguir categoria', false, `Error cuando el usuario ${usuario.username} intento seguir la categoría ${categoria}`, 0, 'error'));	
+			}
+
+		});
+	}else{
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'El id de la categoria esta vacío', false, `No ha ingresado el id de la categoria a seguir`, 0, 'error'));
+	}
+}
+
 
 module.exports = {
 	createUser,
@@ -348,5 +385,6 @@ module.exports = {
 	loginWithGoogle,
 	verificacionEmail,
 	seguidoresPorUsuario,
-	seguirPersona
+	seguirPersona,
+	seguirCategoria
 }
