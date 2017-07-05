@@ -13,22 +13,51 @@ const response = require('.././models/modelResponse');
 const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
 
 
-/**
- * Metodo para listar ideas
- * @param {http | https} req - Peticion
- * @param {http | https} res  - Respuesta
- */
+// Método para listar ideas
 function listarIdeas (req, res) {
 	console.log('Request >>> http://localhost:3002/api/idea');
-	let data = idea.listaDeIdeas();
-	res.status(200).send(modelIdea.modelResponse('','','',true, `Se listaron las ideas`, data.length, data));
+
+	refIdea.once('value', (snap) => {
+		let arrayIdeas = [];
+		for(let key in snap.val()){
+			/////////////////
+			let arrayContribuidores = [];
+			for(let clave in snap.val()[key].contribuidores){
+				let contribuidor = {
+					apellido : snap.val()[key].contribuidores[clave].apellido,
+					correo : snap.val()[key].contribuidores[clave].correo,
+					foto : snap.val()[key].contribuidores[clave].foto,
+					nombre : snap.val()[key].contribuidores[clave].nombre,
+					sigueAlCreador : snap.val()[key].contribuidores[clave].sigueAlCreador,
+					username : snap.val()[key].contribuidores[clave].username
+				}
+				arrayContribuidores.push(contribuidor);
+			}
+			
+			////////////////
+			let objetoIdea = {
+				beneficios: snap.val()[key].beneficios,
+				categoria: snap.val()[key].categoria,
+				contribuidores: arrayContribuidores,
+				creador: snap.val()[key].creador,
+				descripcion: snap.val()[key].descripcion,
+				disposicionesFinales: snap.val()[key].disposicionesFinales,
+				efectos: snap.val()[key].efectos,
+				fechaElaboracion: snap.val()[key].fechaElaboracion,
+				formulaLegal: snap.val()[key].formulaLegal,
+				imagen: snap.val()[key].imagen,
+				likes: snap.val()[key].likes,
+				motivos: snap.val()[key].motivos,
+				nombre: snap.val()[key].nombre
+			};
+			arrayIdeas.push(objetoIdea);
+		}
+		let data = idea.listaDeIdeas();
+		res.status(200).send(modelIdea.modelResponse('','','',true, `Se listaron las ideas`, data.length, arrayIdeas));
+	});
 }
 
-/**
- * Metodo para crear una idea
- * @param {http | https} req - Peticion
- * @param {http | https} res  - Respuesta
- */
+// Método para crear ideas
 function crearIdea (req, res) {
 	console.log('Request >>> http://localhost:3002/api/idea');
 	let crearIdea = refIdea.push();
@@ -61,6 +90,7 @@ function crearIdea (req, res) {
 	res.send(response.modelResponse('', '', '', true, `Se registro la idea ${key}`, 1, 'ok'));
 }
 
+// Método para listar ideas según las categoría q sigue el usuario
 function ideasPorCategoriaDelUsuario(req, res) {
 	console.log('Request >>> http://localhost:3002/api/ideasxusuario');
 	let usuario = req.robjUsuario;
