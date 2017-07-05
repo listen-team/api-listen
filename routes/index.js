@@ -44,7 +44,7 @@ api.post('/seguirPersona', auth, ctrlUsuario.seguirPersona);
 api.post('/seguirCategoria', auth, ctrlUsuario.seguirCategoria);
 api.post('/seguirIdea', auth, ctrlUsuario.seguirIdea);
 api.post('/darlike', ctrlUsuario.darLike);
-
+api.post('/contribuirIdea', auth, ctrlUsuario.contribuirIdea);
 
 
 /*

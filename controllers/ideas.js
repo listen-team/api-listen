@@ -10,6 +10,7 @@ const modelIdea = require('.././models/modelResponse');
 const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
 const service = require('.././services');
 const response = require('.././models/modelResponse');
+const refUsuariosSeguidos = db.ref().child('usuario_seguidos');
 
 
 /**
@@ -18,16 +19,9 @@ const response = require('.././models/modelResponse');
  * @param {http | https} res  - Respuesta
  */
 function listarIdeas (req, res) {
+	console.log('Request >>> http://localhost:3002/api/idea');
 	let data = idea.listaDeIdeas();
-	res.status(200).send(modelIdea.modelResponse(
-			null,
-			null,
-			null,
-			true, 
-			`Se listaron las ideas`, 
-			data.length, 
-			data)
-	);
+	res.status(200).send(modelIdea.modelResponse('','','',true, `Se listaron las ideas`, data.length, data));
 }
 
 /**
@@ -36,6 +30,7 @@ function listarIdeas (req, res) {
  * @param {http | https} res  - Respuesta
  */
 function crearIdea (req, res) {
+	console.log('Request >>> http://localhost:3002/api/idea');
 	let crearIdea = refIdea.push();
 	let key = crearIdea.toString().split('/idea/')[1];
 	let usuario = req.robjUsuario;
@@ -56,6 +51,7 @@ function crearIdea (req, res) {
 			username : usuario.username,
 			nombre : usuario.nombre,	
 			apellido : usuario.apellido,
+			correo : usuario.correo,
 			foto : usuario.foto === null || usuario.foto === undefined ? '' : usuario.foto
 		},
 		categoria : req.body.categoria === null || req.body.categoria === undefined ? '' : req.body.categoria,
@@ -66,78 +62,67 @@ function crearIdea (req, res) {
 }
 
 function ideasPorCategoriaDelUsuario(req, res) {
-	let email = req.user;
-	let token = req.token;
-
-	refUsuarioCategoria.on('value', (snap) => {
-		let lista = snap.val();
-		let user = null;
-		let keyUser =null;
-
-		for(let key in lista){
-			console.log(lista[key].correo + ' < > '+ email);
-			if (lista[key].correo == email) {
-				user = lista[key];
-				keyUser = key;
-				console.log(user);
-				break;
+	console.log('Request >>> http://localhost:3002/api/ideasxusuario');
+	let usuario = req.robjUsuario;
+	refUsuarioCategoria.once('value', (snap) => {
+		let arrayCategorias = [], array2 = [];
+		for(let key in snap.val()){
+			if(key === usuario.username){
+				arrayCategorias.push(snap.val()[key])
 			}
 		}
 		
-		console.log(user == null);
-		console.log("user", user);
-		if(user != null){
-			refIdea.on('value', (snap) => {
-				let listaIdea = snap.val();
-				let ideasDelUsuario = [];
-				///
-				let nombres = ['','Yefrin Laura','Alonso Moreno','Bruno Landacay','Eduardo Leandro','Luis Acosta'];
-				let cantidadUsuarios  = ['',50,45,80,102,87];
-				let cantidadContribuyentes  = ['',98,14,50,6,98];
-				let sigue = [true,true,true,false,true, false, false];
-				let contador = 0;
-				let fotos = ['', 
-					'https://randomuser.me/api/portraits/men/0.jpg',
-					'https://avatars0.githubusercontent.com/u/17907355?v=3&s=400',
-					'https://randomuser.me/api/portraits/men/2.jpg',
-					'https://randomuser.me/api/portraits/men/3.jpg',
-					'https://randomuser.me/api/portraits/men/4.jpg',
-					'https://randomuser.me/api/portraits/men/5.jpg'];
-				let arrayNombre = ['hola','Reduccion del peaje','Libros Virtuales','Reduccion medio pasaje','Matrimonio homosexual','Reduccion pension cibertec'];
-				
-				for(let key in listaIdea){
-					contador++
-					if (listaIdea[key].categoria == user.categoria) {
-						let ideaUsu = {
-							id : key,
-							nombre :arrayNombre[listaIdea[key].numero],
-							descripcion : listaIdea[key].descripcion,
-							imagen : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
-							like : 40,
-							cantContrib : cantidadContribuyentes[listaIdea[key].numero],
-							idCreador : cantidadUsuarios[listaIdea[key].numero],
-							nombreCreador : nombres[listaIdea[key].numero],
-							fotoCreador : fotos[listaIdea[key].numero],
-							fotoContribuidor : ['https://randomuser.me/api/portraits/women/10.jpg','https://randomuser.me/api/portraits/women/2.jpg','https://randomuser.me/api/portraits/women/6.jpg','https://randomuser.me/api/portraits/women/9.jpg'],
-							sigueAlCreador : sigue[listaIdea[key].numero]
-						}
-						//ideasDelUsuario.push(listaIdea[key]);	
-						ideasDelUsuario.push(ideaUsu);	
-						console.log(user + ' <> ' + contador);
-					}
-				}		
-
-				res.status(200).send(modelIdea.modelResponse(token, null, null, true, 'Se listaron las ideas del usuario', ideasDelUsuario.length, ideasDelUsuario));
-
-			});
+		for(let key in arrayCategorias){
+			for(let key2 in arrayCategorias[key]){
+				array2.push(arrayCategorias[key][key2].tipo);
+			}
+		}
+		
+		if(array2.length === 0){
+			res.send(response.modelResponse('', '', '', true, 'El usuario no sigue ninguna categoria', 0, array2));
 		}else{
-			res.status(404).send(modelIdea.modelResponse(token,null,null,false, 'El usuario no sigue a ninguna categoria', 0, email));
+			refIdea.once('value', (snap) => {
+				let arrayIdeas = [];
+
+				for(let key in snap.val()){
+					for(let clave in array2){
+						if(snap.val()[key].categoria === array2[clave]){
+							let verificarSiSigue = refUsuarioCategoria.child(''+usuario.username).child(''+snap.val()[key].creador.username) .toString().split('/'+usuario.username+'/')[1];
+							let sigueAlCreador = verificarSiSigue === null || verificarSiSigue === undefined ? false : true;
+							
+							let arrayFotos = [];
+
+							for(let clv in snap.val()[key].contribuidores){
+								arrayFotos.push(snap.val()[key].contribuidores[clv].foto);
+							}
+
+							let objetoIdea = {
+								id : key,
+								nombre : snap.val()[key].nombre,
+								descripcion : snap.val()[key].descripcion,
+								imagen : snap.val()[key].imagen,
+								likes : snap.val()[key].likes,
+								cantContrib : snap.val()[key].contribuidores.length === null || snap.val()[key].contribuidores.length === undefined ? 0 : snap.val()[key].contribuidores.length,
+								idCreador : usuario.username,
+								correoCreador : usuario.correo,
+								nombreCreador : `${usuario.nombre.split(' ')[0]} ${usuario.apellido.split(' ')[0]}`,
+								fotoCreador : snap.val()[key].creador.foto,
+								fotoContribuidor : arrayFotos,
+								sigueAlCreador
+							}
+
+							arrayIdeas.push(objetoIdea);
+							break;
+						}
+					}
+				}
+				res.send(response.modelResponse('', '', '', true, `Lista de ideas según las categorias que sigue el usuario ${usuario.username}`, arrayIdeas.length, arrayIdeas));
+			});
 		}
 	});
 }
 
 function ideasSeguidas(req, res){
-
 }
 
 

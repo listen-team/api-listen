@@ -381,7 +381,7 @@ function seguirCategoria(req, res) {
 
 // Método para seguir idea
 function seguirIdea(req, res) {
-	//console.log()
+	console.log('Request >>> http://localhost:3002/api/seguirIdea');
 	let usuario = req.robjUsuario;
 	let idIdea = req.body.idIdea === null || req.body.idIdea === undefined ? '' : req.body.idIdea;
 
@@ -434,6 +434,7 @@ function seguirIdea(req, res) {
 
 // Método para dar like a una idea
 function darLike(req, res) {
+	console.log('Request >>> http://localhost:3002/api/darlike');
 	let idIdea = req.body.idIdea === null || req.body.idIdea === undefined ? '' : req.body.idIdea;
 	
 	if (idIdea !== '') {
@@ -467,6 +468,61 @@ function darLike(req, res) {
 	}
 }
 
+// Método para contribuir con una idea
+function contribuirIdea(req, res){
+	console.log('Request >>> http://localhost:3002/api/contribuirIdea');
+	let usuario = req.robjUsuario;
+	let idIdea = req.body.idIdea === null || req.body.idIdea === undefined ? '' : req.body.idIdea;
+
+	if(idIdea !== ''){
+		refIdea.once('value', (snap) => {
+			let idea = null;
+			for(let key in snap.val()){
+				if(key === idIdea){
+					idea = snap.val()[key];
+				}
+			}
+			if(idea !== null){
+				if(idea.creador.username !== usuario.username){
+					refUsuariosSeguidos.once('value', (snap) => {
+						let sigueAlCreador = false;
+						for(let key in snap.val()){
+							if(key === usuario.username){
+								for(let clave in snap.val()[key]){
+									if(clave === idea.creador.username){
+										sigueAlCreador = true;
+										break;
+									}
+								}
+							}
+						}	
+						let contribuidor = {
+							username : usuario.username,
+							nombre : usuario.nombre,
+							apellido : usuario.apellido,
+							correo : usuario.correo,
+							foto : usuario.foto === null || usuario.foto === undefined ? '' : usuario.foto,
+							sigueAlCreador
+						}
+
+						let agregarContribuidor = refIdea.child(''+idIdea).child('contribuidores').child(''+usuario.username);
+						agregarContribuidor.update(contribuidor);
+						res.send(objResponse.modelResponse('','','',true,`El usuario ${usuario.username} está contribuyendo con la idea ${idIdea}`, 1, 'ok'));
+					});
+				}else{
+					res.send(objResponse.modelResponse('', 'EQUAL_USERNAME', 'Usuario iguales', false,`El usuario ${usuario.username} no puede contribuir con su propia idea`, 0, 'error'));
+				}
+			}else if(idea === null){
+				res.send(objResponse.modelResponse('', 'NOT_FOUND', 'Idea no encontrada', false, `La idea con el id ${idIdea} no existe`, 0, 'error'));
+			}else{
+				res.send(objResponse.modelResponse('', 'ERROR', 'Error contriuyendo idea', false, `Error al contribuir la idea ${idIdea}`, 0, 'error'));
+			}
+		});
+	}else{
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'Id de la idea vacío', false, 'Ingresar el id de la idea a contribuir', 0, 'error'));
+	}
+}
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
@@ -478,5 +534,6 @@ module.exports = {
 	seguirPersona,
 	seguirCategoria,
 	seguirIdea,
-	darLike
+	darLike,
+	contribuirIdea
 }
