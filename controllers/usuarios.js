@@ -30,7 +30,7 @@ function createUser(req, res){
 	let iduser = nombre.split(" ")[0]+apellido.split(" ")[0];
 	let nuevoUsuario = refUsuario.child(iduser.toLowerCase());
 	let key  = nuevoUsuario.toString().split('/usuario/')[1];
- 
+	let fotoCorta = `${nombre.split(' ')[0].substring(0,1)}${apellido.split(' ')[0].substring(0,1)}`;
 	let user = {
 		nombre : nombre,
 		apellido : apellido,
@@ -40,7 +40,8 @@ function createUser(req, res){
 		condicion : condicion,
 		codigoVerificacion : codigoVerificacion,
 		estadoVerifiacion : false,
-		username : key
+		username : key,
+		foto : fotoCorta.toLocaleUpperCase()
 	};
 
 	let promise = new Promise((resolve, reject) => {
