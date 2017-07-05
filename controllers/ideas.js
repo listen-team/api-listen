@@ -133,9 +133,9 @@ function ideasPorCategoriaDelUsuario(req, res) {
 								imagen : snap.val()[key].imagen,
 								likes : snap.val()[key].likes,
 								cantContrib : snap.val()[key].contribuidores.length === null || snap.val()[key].contribuidores.length === undefined ? 0 : snap.val()[key].contribuidores.length,
-								idCreador : usuario.username,
-								correoCreador : usuario.correo,
-								nombreCreador : `${usuario.nombre.split(' ')[0]} ${usuario.apellido.split(' ')[0]}`,
+								idCreador : snap.val()[key].creador.username,
+								correoCreador : snap.val()[key].correo,
+								nombreCreador : `${snap.val()[key].creador.nombre.split(' ')[0]} ${snap.val()[key].creador.apellido.split(' ')[0]}`,
 								fotoCreador : snap.val()[key].creador.foto,
 								fotoContribuidor : arrayFotos,
 								sigueAlCreador
