@@ -43,6 +43,7 @@ api.post('/seguirusuario',auth, ctrlUsuario.seguidoresPorUsuario);
 api.post('/seguirPersona', auth, ctrlUsuario.seguirPersona);
 api.post('/seguirCategoria', auth, ctrlUsuario.seguirCategoria);
 api.post('/seguirIdea', auth, ctrlUsuario.seguirIdea);
+api.post('/darlike', ctrlUsuario.darLike);
 
 
 

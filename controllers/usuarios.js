@@ -14,6 +14,7 @@ const refUsuarioCategoria = db.ref().child('usuarioxcategoria');
 const refCategoria = db.ref().child('categoria');
 const refIdea = db.ref().child('idea');
 const refSeguirIdea = db.ref().child('ideas_seguidas');
+const refLikesIdeas =db.ref().child('like_idea');
 
 // Metodo para crear usuario
 function createUser(req, res){
@@ -431,6 +432,40 @@ function seguirIdea(req, res) {
 	}
 }
 
+// Método para dar like a una idea
+function darLike(req, res) {
+	let idIdea = req.body.idIdea === null || req.body.idIdea === undefined ? '' : req.body.idIdea;
+	
+	if (idIdea !== '') {
+		refIdea.once('value', (snap) => {
+			let idea = null;
+			for(let key in snap.val()){
+				if(idIdea === key){
+					idea = snap.val()[key];
+					break;
+				}
+			}
+
+			if (idea !== null) {
+				let sumarLike = idea.likes + 1;
+
+				let refLike = refIdea.child(''+idIdea);
+				let obj = {
+					likes : sumarLike
+				};	
+
+				refLike.update(obj);
+				res.send(objResponse.modelResponse('','','',true, `Se dio like a la idea ${idIdea}`, 1, 'ok'));
+			}else if(idea === null){
+				res.send(objResponse.modelResponse('', 'NOT_FOUND', 'Idea no encontrada', false, `No existe la idea ${idIdea}`, 0, 'error'));
+			}else{
+				res.send(objResponse.modelResponse('', 'ERROR', 'Error al dar like a la idea', false, 'Error al like a la idea', 0, 'error'))
+			}
+		});	
+	}else{
+		res.send(objResponse.modelResponse('', 'EMPTY_VALUE', 'No se encontró el campo idIdea', false, 'No ha ingresado el id de3 la idea', 0, 'error'));
+	}
+}
 
 module.exports = {
 	createUser,
@@ -442,5 +477,6 @@ module.exports = {
 	seguidoresPorUsuario,
 	seguirPersona,
 	seguirCategoria,
-	seguirIdea
+	seguirIdea,
+	darLike
 }
