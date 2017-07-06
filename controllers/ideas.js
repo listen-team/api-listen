@@ -88,7 +88,7 @@ function crearIdea (req, res) {
 	}
 
 	crearIdea.set(nuevaIdea);
-	res.send(response.modelResponse('', '', '', true, `Se registro la idea ${key}`, 1, 'ok'));
+	res.send(response.modelResponse('', '', '', true, `Se registro la idea ${key}`, 1, key));
 }
 
 // Método para listar ideas según las categoría q sigue el usuario
