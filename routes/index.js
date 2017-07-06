@@ -46,6 +46,7 @@ api.post('/seguirIdea', auth, ctrlUsuario.seguirIdea);
 api.post('/darlike', ctrlUsuario.darLike);
 api.post('/contribuirIdea', auth, ctrlUsuario.contribuirIdea);
 api.post('/obtenerUsuarioxToken', auth, ctrlUsuario.obtenerUsuarioPorToken);
+api.post('/actualizarUsuario', auth, ctrlUsuario.actualizarUsuario);
 
 
 /*

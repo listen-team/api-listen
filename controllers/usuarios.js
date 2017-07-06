@@ -531,6 +531,102 @@ function obtenerUsuarioPorToken(req, res) {
 	res.send(objResponse.modelResponse('', '', '', true, `Se obtuvo el usuario ${usuario.username}`, 1, usuario));
 }
 
+// Método para actualizar usuario
+function actualizarUsuario(req, res) {
+	console.log('Request >>> http://localhost:3002/api/actualizarUsuario');
+	let usuario = req.robjUsuario;
+	let objUsuario = {
+		apellido : req.body.apellido === null || req.body.apellido === undefined ?  usuario.apellido : req.body.apellido,
+		contrasena : req.body.contrasena === null || req.body.contrasena === undefined ? usuario.contrasena : req.body.contrasena,
+		correo : req.body.correo===null || req.body.correo === undefined ? usuario.correo : req.body.correo,
+		fecha_nacimiento : req.body.fecha_nacimiento===null || req.body.fecha_nacimiento === undefined ? usuario.fecha_nacimiento : fecha_nacimiento,
+		foto : req.body.foto === null || req.body.foto === undefined ? usuario.foto : req.body.foto,
+		nombre : req.body.nombre === null || req.body.nombre === undefined ? usuario.nombre : req.body.nombre
+	};
+
+	let promise = new Promise((resolve, reject) => {
+		refUsuario.child(usuario.username).once('value').then((snap) => {
+			// Actualizar si el usuario existe
+			let refUpdate1 = refUsuario.child(usuario.username);
+			refUpdate1.update(objUsuario);
+
+			//snap.exists()
+			refIdea.once('value')
+			.then((snap) => {
+				// recorre las ideas
+				snap.forEach((childSnap) => {
+					// Actualiza su datos si el usuario es creador
+					if (childSnap.val().creador.username === usuario.username) {
+						//console.log(childSnap.val());
+						let refUpdate2 = refIdea.child(''+childSnap.key).child('creador');
+						refUpdate2.update({
+							apellido : objUsuario.apellido,
+							correo : objUsuario.correo,
+							foto : objUsuario.foto,
+							nombre : objUsuario.nombre
+						});
+					}else{
+						// Actualiza los datos si el usuario es contribuidor
+						// recorre los contribuidores
+						for(let key in childSnap.val().contribuidores){
+							if(key === usuario.username){
+								//console.log(childSnap.key);			
+								let refUpdate2 = refIdea.child(''+childSnap.key).child('contribuidores').child(key);
+								refUpdate2.update({
+									apellido : objUsuario.apellido,
+									correo : objUsuario.correo,
+									foto : objUsuario.foto,
+									nombre : objUsuario.nombre
+								});
+								break;
+							}
+						}
+					}
+					//console.log(childSnap.key);
+					//console.log(childSnap.val());
+				});
+			});
+
+			refUsuariosSeguidos.once('value', (snap_us) => {
+				for(let key in  snap_us.val()){
+					for(let clave in snap_us.val()[key]){
+						if(snap_us.val()[key][clave].username === usuario.username){
+							//console.log(snap_us.val()[key][clave].username);
+							// actualizar el usuario
+							let refUpdate2 = refUsuariosSeguidos.child(''+key).child(usuario.username);
+								refUpdate2.update({
+									apellido : objUsuario.apellido,
+									correo : objUsuario.correo,
+									foto : objUsuario.foto,
+									nombre : objUsuario.nombre,
+									contrasena : objUsuario.contrasena,
+									fecha_nacimiento : objUsuario.fecha_nacimiento
+								});
+						}
+					}
+					
+				}
+			});
+			
+			resolve(objResponse.modelResponse('', '', '', true, `Se actualizó el usuario ${usuario.username}`, 1, 'ok'));
+		}).catch((error) => {
+			reject((objResponse.modelResponse('', 'ERROR', 'Error al actualizar usuario', false, `Hubo un error al actualizar el usuario ${usuario.username}`, 0, 'error')));
+		});
+	});
+
+	promise.then((response) => {
+		res.send(response);
+	}, (error) => {
+		res.send(error);
+	});
+/*
+	refUsuario.child(''+usuario.username).once('value', (snap) => {
+		console.log(snap.val());
+		user = snap.val();
+		
+	});*/
+}
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
@@ -544,5 +640,6 @@ module.exports = {
 	seguirIdea,
 	darLike,
 	contribuirIdea,
-	obtenerUsuarioPorToken
+	obtenerUsuarioPorToken,
+	actualizarUsuario
 }
