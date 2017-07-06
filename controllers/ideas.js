@@ -156,10 +156,28 @@ function ideasPorCategoriaDelUsuario(req, res) {
 function ideasSeguidas(req, res){
 }
 
+// Método para obtener contribuidores de la idea
+function listaDeContribuidoresPorIdea(req, res) {
+	console.log('Request >>> http://localhost:3002/api/contribuidoresIdea/');
+	let idIdea = req.params.id;
+	refIdea.once('value', (snap) => {
+		let array = [];
+		for(let key in snap.val()){
+			//console.log(snap.val()[key].contribuidores);
+			if(key.trim().toLocaleLowerCase() === idIdea.trim().toLocaleLowerCase()){
+				for(let clave in snap.val()[key].contribuidores){
+					array.push(snap.val()[key].contribuidores[clave]);
+				}
+			}
+		}
+		res.send(response.modelResponse('', '', '', true, `Se listaron los contribuidores de la idea ${idIdea}`, array.length, array));
+	});
+}
 
 module.exports = {
 	listarIdeas,
 	crearIdea,
-	ideasPorCategoriaDelUsuario
+	ideasPorCategoriaDelUsuario,
+	listaDeContribuidoresPorIdea
 };
 

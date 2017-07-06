@@ -55,5 +55,6 @@ api.post('/actualizarUsuario', auth, ctrlUsuario.actualizarUsuario);
 api.get('/idea', auth, ctrlIdea.listarIdeas);
 api.post('/idea', auth, ctrlIdea.crearIdea);
 api.get('/ideasxusuario', auth, ctrlIdea.ideasPorCategoriaDelUsuario)
+api.get('/contribuidoresIdea/:id', ctrlIdea.listaDeContribuidoresPorIdea);
 
 module.exports = api;
