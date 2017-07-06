@@ -174,10 +174,40 @@ function listaDeContribuidoresPorIdea(req, res) {
 	});
 }
 
+// Método para obtener idea por su id
+function obtenerIdeaPorId(req, res){
+	let idIdea = req.params.id;
+
+	refIdea.once('value', (snap) => {
+		let idea = null;
+		let array = [];
+		for(let key in snap.val()){
+			if(key.trim().toLocaleLowerCase() === idIdea.trim().toLocaleLowerCase()){
+				console.log('Hola >>> ' + snap.val()[key].creador.username);
+				for(let clave in snap.val()[key].contribuidores){
+					array.push(snap.val()[key].contribuidores[clave]);
+				}
+				idea = snap.val()[key];
+				break;
+			}
+		}
+
+		if(idea !== null){
+			idea.contribuidores = array;
+			res.send(response.modelResponse('','','',true,`Se obtuvo la idea ${idIdea}`, 1, idea));
+		}else if(idea === null){
+			res.send(response.modelResponse('', 'NOT_FOUND', 'Idea no encontrada', false, `No existe la idea con el id ${idIdea}`, 0, 'error'));
+		}else{
+			res.send(response.modelResponse('', 'ERROR', 'Error al obtener idea', false, `Error al obtener la idea ${idIdea}`, 0, 'error'));
+		}
+	});
+}
+
 module.exports = {
 	listarIdeas,
 	crearIdea,
 	ideasPorCategoriaDelUsuario,
-	listaDeContribuidoresPorIdea
+	listaDeContribuidoresPorIdea,
+	obtenerIdeaPorId
 };
 
