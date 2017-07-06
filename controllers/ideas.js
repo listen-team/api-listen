@@ -36,6 +36,7 @@ function listarIdeas (req, res) {
 			
 			////////////////
 			let objetoIdea = {
+				id : key,
 				beneficios: snap.val()[key].beneficios,
 				categoria: snap.val()[key].categoria,
 				contribuidores: arrayContribuidores,
