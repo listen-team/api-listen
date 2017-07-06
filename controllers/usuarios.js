@@ -524,6 +524,13 @@ function contribuirIdea(req, res){
 	}
 }
 
+// Método para obtener usuario por token
+function obtenerUsuarioPorToken(req, res) {
+	console.log('Request >>> http://localhost:3002/api/obtenerUsuarioxToken');
+	let usuario = req.robjUsuario;
+	res.send(objResponse.modelResponse('', '', '', true, `Se obtuvo el usuario ${usuario.username}`, 1, usuario));
+}
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
@@ -536,5 +543,6 @@ module.exports = {
 	seguirCategoria,
 	seguirIdea,
 	darLike,
-	contribuirIdea
+	contribuirIdea,
+	obtenerUsuarioPorToken
 }
