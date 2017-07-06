@@ -47,6 +47,7 @@ api.post('/darlike', ctrlUsuario.darLike);
 api.post('/contribuirIdea', auth, ctrlUsuario.contribuirIdea);
 api.post('/obtenerUsuarioxToken', auth, ctrlUsuario.obtenerUsuarioPorToken);
 api.post('/actualizarUsuario', auth, ctrlUsuario.actualizarUsuario);
+api.get('/getusers', auth,ctrlUsuario.listarUsuarios)
 
 
 /*

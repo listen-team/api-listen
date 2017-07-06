@@ -176,6 +176,7 @@ function listaDeContribuidoresPorIdea(req, res) {
 
 // Método para obtener idea por su id
 function obtenerIdeaPorId(req, res){
+	console.log('Request >>> http://localhost:3002/api/obtenerIdea/');
 	let idIdea = req.params.id;
 
 	refIdea.once('value', (snap) => {

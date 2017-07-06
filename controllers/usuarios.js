@@ -627,6 +627,18 @@ function actualizarUsuario(req, res) {
 	});*/
 }
 
+// Método para listar usuarios
+function listarUsuarios(req, res){
+	console.log('Request >>> http://localhost:3002/api/getusers');
+	refUsuario.once('value', (snap) => {
+		let array = [];
+		for(let key in snap.val()){
+			array.push(snap.val()[key]);
+		}
+		res.send(objResponse.modelResponse('', '', '', true, 'Se listaron los usuario', array.length, array));
+	});
+}
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
@@ -641,5 +653,6 @@ module.exports = {
 	darLike,
 	contribuirIdea,
 	obtenerUsuarioPorToken,
-	actualizarUsuario
+	actualizarUsuario,
+	listarUsuarios
 }
