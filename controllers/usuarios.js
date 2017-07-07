@@ -531,6 +531,36 @@ function obtenerUsuarioPorToken(req, res) {
 	res.send(objResponse.modelResponse('', '', '', true, `Se obtuvo el usuario ${usuario.username}`, 1, usuario));
 }
 
+function convertirTokenUsuario(tk) {
+	let promise = new Promise((resolve, reject) => {
+		service.decodedToken(tk)
+		.then(response => {
+			refUsuario.once('value', (snap) => {
+				let lista = snap.val();
+				let objUsuario = null;
+				
+				for(let key in lista){
+					if (lista[key].correo == response) {
+						refUsuario.child(lista[key].username).once('value').then((snap) => {
+							resolve(snap.val());
+						});
+						//console.log('Tu mama calata >>> ' + lista[key].nombre);
+						//token = lista[key];
+						resolve(lista[key]);
+						objUsuario = snap.child(key).val();
+				//		console.log(objUsuario);
+						break;
+					}
+				}
+			});
+		})
+		.catch((response) => {
+			reject({error : response});
+		});
+	});
+	return promise;
+}
+
 // Método para actualizar usuario
 function actualizarUsuario(req, res) {
 	console.log('Request >>> http://localhost:3002/api/actualizarUsuario');
@@ -639,6 +669,7 @@ function listarUsuarios(req, res){
 	});
 }
 
+
 module.exports = {
 	createUser,
 	loginWithFirebase,
@@ -654,5 +685,6 @@ module.exports = {
 	contribuirIdea,
 	obtenerUsuarioPorToken,
 	actualizarUsuario,
-	listarUsuarios
+	listarUsuarios,
+	convertirTokenUsuario
 }
